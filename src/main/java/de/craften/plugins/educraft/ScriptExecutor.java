@@ -11,6 +11,7 @@ public class ScriptExecutor {
     private final LuaValue chunk;
     private Thread thread;
     private LuaClosure closure;
+    private Runnable callback;
 
     /**
      * Creates a new script executor for the given code.
@@ -33,6 +34,9 @@ public class ScriptExecutor {
             @Override
             public void run() {
                 chunk.invoke();
+                if (callback != null) {
+                    callback.run();
+                }
             }
         });
         thread.setDaemon(true);
@@ -51,5 +55,9 @@ public class ScriptExecutor {
 
     public boolean isRunning() {
         return thread != null;
+    }
+
+    public void setCallback(Runnable callback) {
+        this.callback = callback;
     }
 }
