@@ -1,5 +1,7 @@
 package de.craften.plugins.educraft;
 
+import de.craften.plugins.educraft.luaapi.EduCraftApi;
+import de.craften.plugins.managedentities.ManagedEntity;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaValue;
 
@@ -16,10 +18,12 @@ public class ScriptExecutor {
     /**
      * Creates a new script executor for the given code.
      *
-     * @param code code to execute
+     * @param code   code to execute
+     * @param entity entity to execute the code with
      */
-    public ScriptExecutor(String code) {
+    public ScriptExecutor(String code, ManagedEntity entity) {
         engine = new ScriptEngine();
+        engine.installGlobal(new EduCraftApi(entity));
         chunk = engine.compile(code);
     }
 
