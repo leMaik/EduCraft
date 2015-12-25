@@ -5,10 +5,13 @@ import de.craften.plugins.managedentities.ManagedEntity;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaValue;
 
+import java.util.logging.Level;
+
 /**
  * An executor for EduCraft Lua scripts.
  */
 public class ScriptExecutor {
+    public static final long MOVEMENT_DELAY = 1000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
     private Thread thread;
@@ -37,6 +40,12 @@ public class ScriptExecutor {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Thread.sleep(MOVEMENT_DELAY);
+                } catch (InterruptedException e) {
+                    EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
+                }
+
                 chunk.invoke();
                 if (callback != null) {
                     callback.run();
