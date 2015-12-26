@@ -1,7 +1,9 @@
 package de.craften.plugins.educraft;
 
-import de.craften.plugins.educraft.luaapi.EduCraftApi;
-import org.luaj.vm2.*;
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
 
 /**
@@ -27,13 +29,23 @@ public class ScriptEngine {
     }
 
     /**
-     * Install all values from the given table as global variable.
+     * Sets all values from the given table as global variables.
      *
      * @param table table to installGlobal as global variables
      */
-    public void installGlobal(LuaTable table) {
+    public void mergeGlobal(LuaTable table) {
         for (LuaValue key : table.keys()) {
             globals.set(key, table.get(key));
         }
+    }
+
+    /**
+     * Sets the given value as a global variable with the given name.
+     *
+     * @param name  name of the variable
+     * @param value value to set the variable to
+     */
+    public void setGlobal(String name, LuaValue value) {
+        globals.set(name, value);
     }
 }

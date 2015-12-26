@@ -38,16 +38,11 @@ public class EduCraft extends JavaPlugin {
     }
 
     private void runCode(final Player player, String code) {
-        ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Creeper.class));
+        final ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Creeper.class), player);
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
-                getServer().getScheduler().scheduleSyncDelayedTask(EduCraft.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        player.sendMessage("Done.");
-                    }
-                });
+                executor.sendMessage("Done.");
             }
         });
         executor.run();

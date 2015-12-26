@@ -2,9 +2,14 @@ package de.craften.plugins.educraft;
 
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import de.craften.plugins.managedentities.ManagedEntity;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.luaj.vm2.LuaClosure;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.OneArgFunction;
 
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -14,6 +19,7 @@ public class ScriptExecutor {
     public static final long MOVEMENT_DELAY = 1000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
+    private UUID playerId;
     private Thread thread;
     private LuaClosure closure;
     private Runnable callback;
@@ -23,11 +29,20 @@ public class ScriptExecutor {
      *
      * @param code   code to execute
      * @param entity entity to execute the code with
+     * @param player player that runs the code
      */
-    public ScriptExecutor(String code, ManagedEntity entity) {
+    public ScriptExecutor(String code, ManagedEntity entity, Player player) {
         engine = new ScriptEngine();
-        engine.installGlobal(new EduCraftApi(entity));
+        engine.mergeGlobal(new EduCraftApi(entity));
+        engine.setGlobal("log", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue message) {
+                sendMessage(message.tojstring());
+                return LuaValue.NIL;
+            }
+        });
         chunk = engine.compile(code);
+        playerId = player.getUniqueId();
     }
 
     /**
@@ -44,9 +59,18 @@ public class ScriptExecutor {
                     Thread.sleep(MOVEMENT_DELAY);
                 } catch (InterruptedException e) {
                     EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
+                    sendMessage("The program could not be executed.");
+                    return;
                 }
 
-                chunk.invoke();
+                try {
+                    chunk.invoke();
+                } catch (LuaError e) {
+                    EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
+                    sendMessage("The program could not be executed.");
+                    return;
+                }
+
                 if (callback != null) {
                     callback.run();
                 }
@@ -72,5 +96,12 @@ public class ScriptExecutor {
 
     public void setCallback(Runnable callback) {
         this.callback = callback;
+    }
+
+    public void sendMessage(String message) {
+        Player player = Bukkit.getPlayer(playerId);
+        if (player != null) {
+            player.sendMessage("[EduCraft] " + message);
+        }
     }
 }
