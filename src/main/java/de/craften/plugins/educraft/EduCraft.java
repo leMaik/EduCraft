@@ -2,6 +2,7 @@ package de.craften.plugins.educraft;
 
 import de.craften.plugins.managedentities.EntityManager;
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,7 +29,7 @@ public class EduCraft extends JavaPlugin {
             if (label.equals("run") && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
                 BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
                 player.sendMessage("[EduCraft] Running your code...");
-                runCode(player, StringUtils.join(book.getPages(), " "));
+                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")));
                 return true;
             }
         }
