@@ -16,7 +16,7 @@ import java.util.logging.Level;
  * An executor for EduCraft Lua scripts.
  */
 public class ScriptExecutor {
-    public static final long MOVEMENT_DELAY = 1000;
+    public static final long FUNCTION_DELAY = 1000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
     private UUID playerId;
@@ -56,7 +56,7 @@ public class ScriptExecutor {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(MOVEMENT_DELAY);
+                    Thread.sleep(FUNCTION_DELAY);
                 } catch (InterruptedException e) {
                     EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
                     sendMessage("The program could not be executed.");
