@@ -29,7 +29,7 @@ public class EduCraftApi extends LuaTable {
         set("moveForward", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                stationary.setLocation(entity.getEntity().getLocation().add(direction));
+                stationary.setLocation(stationary.getLocation().clone().add(direction));
                 sleep();
                 return LuaValue.NIL;
             }
@@ -38,8 +38,8 @@ public class EduCraftApi extends LuaTable {
         set("turnLeft", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                direction = new Vector(direction.getY(), 0, -direction.getX());
-                stationary.setLocation(entity.getEntity().getLocation().setDirection(direction));
+                direction = new Vector(direction.getZ(), 0, -direction.getX());
+                stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
                 sleep();
                 return LuaValue.NIL;
             }
@@ -48,16 +48,16 @@ public class EduCraftApi extends LuaTable {
         set("turnRight", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
-                direction = new Vector(-direction.getY(), 0, direction.getX());
-                stationary.setLocation(entity.getEntity().getLocation().setDirection(direction));
+                direction = new Vector(-direction.getZ(), 0, direction.getX());
+                stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
                 sleep();
                 return LuaValue.NIL;
             }
         });
 
-        set("placeTorch", new ZeroArgFunction() {
+        set("placeTorch", new SyncWaitingZeroArgFunction() {
             @Override
-            public LuaValue call() {
+            public LuaValue callSync() {
                 Block blockInSight = entity.getEntity().getLocation().add(direction).getBlock();
                 if (blockInSight.getType() == Material.AIR) {
                     blockInSight.setType(Material.TORCH);
@@ -67,12 +67,11 @@ public class EduCraftApi extends LuaTable {
                         blockInSight.setType(Material.TORCH);
                     }
                 }
-                sleep();
                 return LuaValue.NIL;
             }
         });
 
-        stationary.setLocation(entity.getEntity().getLocation().setDirection(direction));
+        stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
     }
 
     private void sleep() {
