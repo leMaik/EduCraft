@@ -1,5 +1,7 @@
 package de.craften.plugins.educraft;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import de.craften.plugins.managedentities.EntityManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
@@ -8,18 +10,31 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 /**
  * Main class of the EduCraft plugin.
  */
 public class EduCraft extends JavaPlugin {
     private EntityManager manager;
+    private Multimap<UUID, ScriptExecutor> runningPrograms = ArrayListMultimap.create();
 
     @Override
     public void onEnable() {
         manager = new EntityManager(this);
+
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onPlayerQuit(PlayerQuitEvent event) {
+                killAll(event.getPlayer().getUniqueId());
+            }
+        }, this);
     }
 
     @Override
@@ -31,10 +46,19 @@ public class EduCraft extends JavaPlugin {
                 player.sendMessage("[EduCraft] Running your code...");
                 runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")));
                 return true;
+            } else if (label.equals("stop")) {
+                killAll(player.getUniqueId());
             }
         }
 
         return false;
+    }
+
+    private void killAll(UUID playerId) {
+        for (ScriptExecutor executor : runningPrograms.removeAll(playerId)) {
+            executor.stop();
+            executor.sendMessage("Stopped.");
+        }
     }
 
     private void runCode(final Player player, String code) {
@@ -46,5 +70,6 @@ public class EduCraft extends JavaPlugin {
             }
         });
         executor.run();
+        runningPrograms.put(player.getUniqueId(), executor);
     }
 }

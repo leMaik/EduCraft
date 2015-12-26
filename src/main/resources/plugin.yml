@@ -6,7 +6,12 @@ commands:
   run:
     description: Execute the code from the book you hold.
     permission: educraft.run
+  stop:
+    description: Stop all your running programs.
+    permission: educraft.stop
 
 permissions:
   educraft.run:
+    default: op
+  educraft.stop:
     default: op
