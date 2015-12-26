@@ -9,7 +9,6 @@ import org.luaj.vm2.lib.ZeroArgFunction;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
 /**
  * A function that runs the code synchronously and then sleeps
@@ -28,8 +27,7 @@ public abstract class SyncWaitingZeroArgFunction extends ZeroArgFunction {
                 }
             }).get();
         } catch (InterruptedException | ExecutionException e) {
-            EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Error while executing a script", e);
-            throw new LuaError("Error while calling a function");
+            throw new LuaError(e);
         }
     }
 

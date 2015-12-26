@@ -1,6 +1,5 @@
 package de.craften.plugins.educraft.luaapi;
 
-import de.craften.plugins.educraft.EduCraft;
 import de.craften.plugins.educraft.ScriptExecutor;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
@@ -8,11 +7,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.ZeroArgFunction;
-
-import java.util.logging.Level;
 
 /**
  * The Lua API for EduCraft. This API works with an entity.
@@ -78,7 +76,7 @@ public class EduCraftApi extends LuaTable {
         try {
             Thread.sleep(ScriptExecutor.MOVEMENT_DELAY);
         } catch (InterruptedException e) {
-            EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Error while executing a script", e);
+            throw new LuaError(e);
         }
     }
 }

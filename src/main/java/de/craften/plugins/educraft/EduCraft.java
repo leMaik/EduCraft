@@ -61,15 +61,17 @@ public class EduCraft extends JavaPlugin {
         }
     }
 
-    private void runCode(final Player player, String code) {
+    private void runCode(Player player, String code) {
+        final UUID playerId = player.getUniqueId();
         final ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Creeper.class), player);
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
+                runningPrograms.remove(playerId, executor);
                 executor.sendMessage("Done.");
             }
         });
         executor.run();
-        runningPrograms.put(player.getUniqueId(), executor);
+        runningPrograms.put(playerId, executor);
     }
 }

@@ -66,8 +66,10 @@ public class ScriptExecutor {
                 try {
                     chunk.invoke();
                 } catch (LuaError e) {
-                    EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
-                    sendMessage("The program could not be executed.");
+                    if (!(e.getCause() instanceof InterruptedException)) {
+                        EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
+                        sendMessage("The program could not be executed.");
+                    }
                     return;
                 }
 
