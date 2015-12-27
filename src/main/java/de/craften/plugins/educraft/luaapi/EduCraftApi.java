@@ -1,9 +1,6 @@
 package de.craften.plugins.educraft.luaapi;
 
-import de.craften.plugins.educraft.luaapi.functions.MoveForwardFunction;
-import de.craften.plugins.educraft.luaapi.functions.PlaceTorchFunction;
-import de.craften.plugins.educraft.luaapi.functions.TurnLeftFunction;
-import de.craften.plugins.educraft.luaapi.functions.TurnRightFunction;
+import de.craften.plugins.educraft.luaapi.functions.*;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
 import org.bukkit.util.Vector;
@@ -28,6 +25,7 @@ public class EduCraftApi extends LuaTable {
         set("turnLeft", new TurnLeftFunction().withApi(this));
         set("turnRight", new TurnRightFunction().withApi(this));
         set("placeTorch", new PlaceTorchFunction().withApi(this));
+        set("ifBlockAhead", new IfBlockAheadFunction().withApi(this));
 
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
     }
