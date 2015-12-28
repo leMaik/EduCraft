@@ -8,8 +8,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -63,7 +63,7 @@ public class EduCraft extends JavaPlugin {
 
     private void runCode(Player player, String code) {
         final UUID playerId = player.getUniqueId();
-        final ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Creeper.class), player);
+        final ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Villager.class), player);
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
