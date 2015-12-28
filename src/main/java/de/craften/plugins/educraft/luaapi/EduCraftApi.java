@@ -27,6 +27,7 @@ public class EduCraftApi extends LuaTable {
         set("placeTorch", new PlaceTorchFunction().withApi(this));
         set("ifBlockAhead", new IfBlockAheadFunction().withApi(this));
         set("placeBlock", new PlaceBlockFunction().withApi(this));
+        set("placeBlockAhead", new PlaceBlockAheadFunction().withApi(this));
 
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
     }
