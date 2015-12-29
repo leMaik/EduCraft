@@ -25,6 +25,7 @@ public class EduCraftApi extends LuaTable {
         set("turnLeft", new TurnLeftFunction().withApi(this));
         set("turnRight", new TurnRightFunction().withApi(this));
         set("placeTorch", new PlaceTorchFunction().withApi(this));
+        set("plantCrop", new PlantCropFunction().withApi(this));
         set("ifBlockAhead", new IfBlockAheadFunction().withApi(this));
         set("placeBlock", new PlaceBlockFunction().withApi(this));
         set("placeBlockAhead", new PlaceBlockAheadFunction().withApi(this));
