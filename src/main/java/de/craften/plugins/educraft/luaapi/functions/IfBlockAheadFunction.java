@@ -17,12 +17,11 @@ import org.luaj.vm2.Varargs;
 public class IfBlockAheadFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        Block blockAhead = getApi().getEntity().getEntity().getLocation().clone().add(getApi().getDirection()).getBlock();
+        Block blockAhead = getApi().getBlockAhead();
         boolean isAhead;
 
         switch (varargs.checkjstring(1)) {
             case "":
-                blockAhead = getApi().getEntity().getEntity().getLocation().clone().add(getApi().getDirection()).getBlock();
                 isAhead = blockAhead.isEmpty();
                 break;
             case "lava":

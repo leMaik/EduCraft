@@ -1,7 +1,7 @@
 package de.craften.plugins.educraft.luaapi.functions;
 
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
-import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.luaj.vm2.LuaValue;
@@ -15,13 +15,13 @@ import java.util.Collection;
 public class MoveForwardFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        Location targetLocation = getApi().getStationaryBehavior().getLocation().clone().add(getApi().getDirection());
-        Collection<Entity> entities = targetLocation.getWorld().getNearbyEntities(targetLocation.getBlock().getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5);
+        Block targetLocation = getApi().getBlockAhead();
+        Collection<Entity> entities = getApi().getEntitiesAhead();
 
-        if (!targetLocation.getBlock().getType().isSolid()
-                && !targetLocation.getBlock().getRelative(BlockFace.UP).getType().isSolid()
+        if (!targetLocation.getType().isSolid()
+                && !targetLocation.getRelative(BlockFace.UP).getType().isSolid()
                 && entities.isEmpty()) {
-            getApi().getStationaryBehavior().setLocation(targetLocation);
+            getApi().getStationaryBehavior().setLocation(targetLocation.getLocation().add(0.5, 0, 0.5));
         }
 
         return LuaValue.NIL;
