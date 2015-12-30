@@ -3,6 +3,7 @@ package de.craften.plugins.educraft.luaapi;
 import de.craften.plugins.educraft.luaapi.functions.*;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -42,16 +43,46 @@ public class EduCraftApi extends LuaTable {
         return entity;
     }
 
-    public StationaryBehavior getStationaryBehavior() {
-        return stationary;
-    }
-
+    /**
+     * Gets the direction of the entity.
+     *
+     * @return direction
+     */
     public Vector getDirection() {
         return direction;
     }
 
+    /**
+     * Sets the direction and rotates the entity.
+     *
+     * @param direction direction
+     */
     public void setDirection(Vector direction) {
         this.direction = direction;
+
+        Location location = getLocation().clone().setDirection(direction);
+        moveTo(location);
+    }
+
+    /**
+     * Gets the location of the entity.
+     *
+     * @return location of the entity
+     */
+    public Location getLocation() {
+        return stationary.getLocation();
+    }
+
+    /**
+     * Moves the entity to the given location (centered on the block).
+     *
+     * @param location location to teleport the entity to
+     */
+    public void moveTo(Location location) {
+        Location blockLocation = new Location(location.getWorld(),
+                location.getBlockX(), location.getBlockY(), location.getBlockZ(),
+                stationary.getLocation().getYaw(), stationary.getLocation().getPitch());
+        stationary.setLocation(blockLocation.add(0.5, 0, 0.5));
     }
 
     /**
@@ -60,7 +91,7 @@ public class EduCraftApi extends LuaTable {
      * @return block ahead of the entity
      */
     public Block getBlockAhead() {
-        return getStationaryBehavior().getLocation().clone().add(getDirection()).getBlock();
+        return stationary.getLocation().clone().add(getDirection()).getBlock();
     }
 
     /**
