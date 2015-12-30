@@ -1,7 +1,7 @@
 package de.craften.plugins.educraft;
 
+import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
-import de.craften.plugins.managedentities.ManagedEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -28,13 +28,13 @@ public class ScriptExecutor {
     /**
      * Creates a new script executor for the given code.
      *
-     * @param code   code to execute
-     * @param entity entity to execute the code with
-     * @param player player that runs the code
+     * @param code        code to execute
+     * @param environment environment to execute the code in
+     * @param player      player that runs the code
      */
-    public ScriptExecutor(String code, ManagedEntity entity, Player player) {
+    public ScriptExecutor(String code, EduCraftEnvironment environment, Player player) {
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(entity, BlockFace.NORTH));
+        engine.mergeGlobal(new EduCraftApi(environment.getEntity(), BlockFace.NORTH));
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {

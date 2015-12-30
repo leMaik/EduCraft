@@ -2,28 +2,34 @@ package de.craften.plugins.educraft;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.managedentities.EntityManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Main class of the EduCraft plugin.
  */
 public class EduCraft extends JavaPlugin {
+    private final Multimap<UUID, ScriptExecutor> runningPrograms = ArrayListMultimap.create();
+    private final Map<String, EduCraftEnvironment> levels = new HashMap<>();
     private EntityManager manager;
-    private Multimap<UUID, ScriptExecutor> runningPrograms = ArrayListMultimap.create();
 
     @Override
     public void onEnable() {
@@ -35,6 +41,15 @@ public class EduCraft extends JavaPlugin {
                 killAll(event.getPlayer().getUniqueId());
             }
         }, this);
+
+        ConfigurationSection levelsSection = getConfig().getConfigurationSection("levels");
+        for (String key : levelsSection.getKeys(false)) {
+            try {
+                levels.put(key, new EduCraftEnvironment(levelsSection.getConfigurationSection(key)));
+            } catch (IOException e) {
+                getLogger().log(Level.WARNING, "Could not load level " + key, e);
+            }
+        }
     }
 
     @Override
@@ -44,7 +59,7 @@ public class EduCraft extends JavaPlugin {
             if (label.equals("run") && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
                 BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
                 player.sendMessage("[EduCraft] Running your code...");
-                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")));
+                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[0]));
                 return true;
             } else if (label.equals("stop")) {
                 killAll(player.getUniqueId());
@@ -61,9 +76,9 @@ public class EduCraft extends JavaPlugin {
         }
     }
 
-    private void runCode(Player player, String code) {
+    private void runCode(Player player, String code, EduCraftEnvironment environment) {
         final UUID playerId = player.getUniqueId();
-        final ScriptExecutor executor = new ScriptExecutor(code, manager.spawn(player.getLocation(), Villager.class), player);
+        final ScriptExecutor executor = new ScriptExecutor(code, environment, player);
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
@@ -73,5 +88,9 @@ public class EduCraft extends JavaPlugin {
         });
         executor.run();
         runningPrograms.put(playerId, executor);
+    }
+
+    public EntityManager getEntityManager() {
+        return manager;
     }
 }
