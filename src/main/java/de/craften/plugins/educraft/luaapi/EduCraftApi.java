@@ -5,6 +5,7 @@ import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.luaj.vm2.LuaTable;
@@ -19,9 +20,26 @@ public class EduCraftApi extends LuaTable {
     private final StationaryBehavior stationary;
     private Vector direction = new Vector(0, 0, -1);
 
-    public EduCraftApi(final ManagedEntity entity) {
+    public EduCraftApi(final ManagedEntity entity, BlockFace initialDirection) {
         this.entity = entity;
         entity.spawn();
+
+        switch (initialDirection) {
+            case NORTH:
+                setDirection(new Vector(0, 0, -1));
+                break;
+            case EAST:
+                setDirection(new Vector(1, 0, 0));
+                break;
+            case SOUTH:
+                setDirection(new Vector(0, 0, 1));
+                break;
+            case WEST:
+                setDirection(new Vector(-1, 0, 0));
+                break;
+            default:
+                throw new IllegalArgumentException("Initial direction must be north, east, south or west");
+        }
 
         stationary = new StationaryBehavior(entity.getEntity().getLocation().setDirection(direction), false);
         entity.addBehavior(stationary);

@@ -3,6 +3,7 @@ package de.craften.plugins.educraft;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import de.craften.plugins.managedentities.ManagedEntity;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
@@ -33,7 +34,7 @@ public class ScriptExecutor {
      */
     public ScriptExecutor(String code, ManagedEntity entity, Player player) {
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(entity));
+        engine.mergeGlobal(new EduCraftApi(entity, BlockFace.NORTH));
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
