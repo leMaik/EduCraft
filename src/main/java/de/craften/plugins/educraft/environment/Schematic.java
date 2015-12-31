@@ -55,11 +55,11 @@ public class Schematic {
         idxEntitiesMap = new TreeMap<>();
         for (Tag tag : entities) {
             Map<String, Tag> cmpMap = ((CompoundTag) tag).getValue();
-            int y = ((IntTag) cmpMap.get("z")).getValue(); // mc's y and z are not the same
-            int z = ((IntTag) cmpMap.get("y")).getValue();
             int x = ((IntTag) cmpMap.get("x")).getValue();
+            int y = ((IntTag) cmpMap.get("y")).getValue();
+            int z = ((IntTag) cmpMap.get("z")).getValue();
 
-            int blockIndex = x + (y + z * width) * length;
+            int blockIndex = (y * length + z) * width + x;
             idxEntitiesMap.put(blockIndex, cmpMap);
         }
     }
@@ -115,7 +115,7 @@ public class Schematic {
      * @param origin location of the bottom north-east corner of the schematic
      */
     private void restoreBlock(int x, int y, int z, Location origin) {
-        int index = y * getWidth() * getLength() + z * width + x;
+        int index = (y * getLength() + z) * getWidth() + x;
         Block block = origin.getWorld().getBlockAt(origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z);
 
         if (blocks.length > index) {
@@ -128,7 +128,12 @@ public class Schematic {
                 if (tileEntity != null) {
                     Sign sign = (Sign) block.getState();
                     for (int i = 0; i < 4; i++) {
-                        sign.setLine(i, ((StringTag) tileEntity.get("Text" + (i + 1))).getValue());
+                        String raw = ((StringTag) tileEntity.get("Text" + (i + 1))).getValue();
+                        if (raw.equals("\"\"")) {
+                            sign.setLine(i, "");
+                        } else {
+                            sign.setLine(i, raw.replace("{\"extra\":[\"", "").replace("\"],\"text\":\"\"}", ""));
+                        }
                     }
                     sign.update(true);
                 }

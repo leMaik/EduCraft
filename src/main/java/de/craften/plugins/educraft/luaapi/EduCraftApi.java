@@ -22,7 +22,7 @@ public class EduCraftApi extends LuaTable {
 
     public EduCraftApi(final ManagedEntity entity, BlockFace initialDirection) {
         this.entity = entity;
-        entity.spawn();
+        stationary = (StationaryBehavior) entity.getBehaviors(StationaryBehavior.class).iterator().next();
 
         switch (initialDirection) {
             case NORTH:
@@ -40,8 +40,6 @@ public class EduCraftApi extends LuaTable {
             default:
                 throw new IllegalArgumentException("Initial direction must be north, east, south or west");
         }
-
-        stationary = (StationaryBehavior) entity.getBehaviors(StationaryBehavior.class).iterator().next();
 
         set("moveForward", new MoveForwardFunction().withApi(this));
         set("turnLeft", new TurnLeftFunction().withApi(this));
