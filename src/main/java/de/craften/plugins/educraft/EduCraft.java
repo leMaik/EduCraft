@@ -42,14 +42,19 @@ public class EduCraft extends JavaPlugin {
             }
         }, this);
 
+        int loadedLevels = 0;
         ConfigurationSection levelsSection = getConfig().getConfigurationSection("levels");
-        for (String key : levelsSection.getKeys(false)) {
-            try {
-                levels.put(key, new EduCraftEnvironment(levelsSection.getConfigurationSection(key)));
-            } catch (IOException e) {
-                getLogger().log(Level.WARNING, "Could not load level " + key, e);
+        if (levelsSection != null) {
+            for (String key : levelsSection.getKeys(false)) {
+                try {
+                    levels.put(key, new EduCraftEnvironment(levelsSection.getConfigurationSection(key)));
+                    loadedLevels++;
+                } catch (IOException e) {
+                    getLogger().log(Level.WARNING, "Could not load level " + key, e);
+                }
             }
         }
+        getLogger().info(loadedLevels + " levels loaded");
     }
 
     @Override
