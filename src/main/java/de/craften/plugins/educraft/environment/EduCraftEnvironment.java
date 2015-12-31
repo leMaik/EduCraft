@@ -63,7 +63,8 @@ public class EduCraftEnvironment {
                         if (sign.getLine(0).equalsIgnoreCase("[EduCraft]")) {
                             if (entity == null && sign.getLine(1).equalsIgnoreCase("start")) {
                                 startDirection = ((org.bukkit.material.Sign) sign.getData()).getFacing();
-                                Location startLocation = block.getLocation().setDirection(new Vector(startDirection.getModX(), 0, startDirection.getModZ()));
+                                Location startLocation = block.getLocation().add(0.5, 0, 0.5)
+                                        .setDirection(new Vector(startDirection.getModX(), 0, startDirection.getModZ()));
                                 entity = entityManager.spawn(startLocation, Villager.class);
                                 entity.addBehavior(new ResetableStationaryBehavior(startLocation, false));
                                 entity.spawn();
@@ -87,10 +88,7 @@ public class EduCraftEnvironment {
     }
 
     public void reset() {
-        entity.remove();
-        for (ManagedEntity entity : sheep) {
-            entity.remove();
-        }
+        removeEntities();
 
         schematic.restoreAt(location);
         for (int x = 0; x < schematic.getWidth(); x++) {
@@ -120,6 +118,16 @@ public class EduCraftEnvironment {
         for (ManagedEntity entity : sheep) {
             ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
             entity.spawn();
+        }
+    }
+
+    /**
+     * Removes the entities of this environment (the programmable entity and all sheep).
+     */
+    public void removeEntities() {
+        entity.remove();
+        for (ManagedEntity entity : sheep) {
+            entity.remove();
         }
     }
 
