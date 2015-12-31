@@ -1,7 +1,7 @@
 package de.craften.plugins.educraft.luaapi;
 
-import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.educraft.luaapi.functions.*;
+import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
 import org.bukkit.Location;
@@ -34,6 +34,7 @@ public class EduCraftApi extends LuaTable {
         set("ifBlockAhead", new IfBlockAheadFunction().withApi(this));
         set("placeBlock", new PlaceBlockFunction().withApi(this));
         set("placeBlockAhead", new PlaceBlockAheadFunction().withApi(this));
+        set("destroyBlock", new DestroyBlockFunction().withApi(this));
         set("shear", new ShearFunction().withApi(this));
 
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
