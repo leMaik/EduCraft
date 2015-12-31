@@ -3,9 +3,7 @@ package de.craften.plugins.educraft;
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import org.bukkit.Bukkit;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -20,9 +18,9 @@ public class ScriptExecutor {
     public static final long FUNCTION_DELAY = 1000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
+    private final EduCraftEnvironment environment;
     private UUID playerId;
     private Thread thread;
-    private LuaClosure closure;
     private Runnable callback;
 
     /**
@@ -33,6 +31,8 @@ public class ScriptExecutor {
      * @param player      player that runs the code
      */
     public ScriptExecutor(String code, EduCraftEnvironment environment, Player player) {
+        this.environment = environment;
+
         engine = new ScriptEngine();
         engine.mergeGlobal(new EduCraftApi(environment.getEntity(), environment.getStartDirection()));
         engine.setGlobal("log", new OneArgFunction() {
@@ -84,13 +84,20 @@ public class ScriptExecutor {
     }
 
     /**
-     * Stops the script if it is running.
+     * Stops the script if it is running, and resets the environment.
      */
     public void stop() {
         if (thread != null) {
             thread.interrupt();
             thread = null;
         }
+
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(EduCraft.getPlugin(EduCraft.class), new Runnable() {
+            @Override
+            public void run() {
+                environment.reset();
+            }
+        });
     }
 
     public boolean isRunning() {

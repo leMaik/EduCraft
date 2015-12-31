@@ -1,5 +1,6 @@
 package de.craften.plugins.educraft.luaapi;
 
+import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.educraft.luaapi.functions.*;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
@@ -22,24 +23,8 @@ public class EduCraftApi extends LuaTable {
 
     public EduCraftApi(final ManagedEntity entity, BlockFace initialDirection) {
         this.entity = entity;
-        stationary = (StationaryBehavior) entity.getBehaviors(StationaryBehavior.class).iterator().next();
-
-        switch (initialDirection) {
-            case NORTH:
-                setDirection(new Vector(0, 0, -1));
-                break;
-            case EAST:
-                setDirection(new Vector(1, 0, 0));
-                break;
-            case SOUTH:
-                setDirection(new Vector(0, 0, 1));
-                break;
-            case WEST:
-                setDirection(new Vector(-1, 0, 0));
-                break;
-            default:
-                throw new IllegalArgumentException("Initial direction must be north, east, south or west");
-        }
+        stationary = (StationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next();
+        setDirection(new Vector(initialDirection.getModX(), 0, initialDirection.getModZ()));
 
         set("moveForward", new MoveForwardFunction().withApi(this));
         set("turnLeft", new TurnLeftFunction().withApi(this));

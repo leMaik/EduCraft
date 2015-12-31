@@ -1,9 +1,9 @@
 package de.craften.plugins.educraft.environment;
 
 import de.craften.plugins.educraft.EduCraft;
+import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.EntityManager;
 import de.craften.plugins.managedentities.ManagedEntity;
-import de.craften.plugins.managedentities.behavior.StationaryBehavior;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +13,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Villager;
+import org.bukkit.util.Vector;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -61,14 +62,15 @@ public class EduCraftEnvironment {
                         Sign sign = (Sign) block.getState();
                         if (sign.getLine(0).equalsIgnoreCase("[EduCraft]")) {
                             if (entity == null && sign.getLine(1).equalsIgnoreCase("start")) {
-                                entity = entityManager.spawn(block.getLocation(), Villager.class);
-                                entity.addBehavior(new StationaryBehavior(block.getLocation(), false)); //TODO spawn with correct orientation
-                                entity.spawn();
                                 startDirection = ((org.bukkit.material.Sign) sign.getData()).getFacing();
+                                Location startLocation = block.getLocation().setDirection(new Vector(startDirection.getModX(), 0, startDirection.getModZ()));
+                                entity = entityManager.spawn(startLocation, Villager.class);
+                                entity.addBehavior(new ResetableStationaryBehavior(startLocation, false));
+                                entity.spawn();
                                 block.setType(Material.AIR);
                             } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
                                 ManagedEntity<Sheep> sheep = entityManager.spawn(block.getLocation().add(0.5, 0, 0.5), Sheep.class);
-                                sheep.addBehavior(new StationaryBehavior(block.getLocation().add(0.5, 0, 0.5), false));
+                                sheep.addBehavior(new ResetableStationaryBehavior(block.getLocation().add(0.5, 0, 0.5), false));
                                 this.sheep.add(sheep);
                                 sheep.spawn();
                                 block.setType(Material.AIR);
@@ -91,9 +93,32 @@ public class EduCraftEnvironment {
         }
 
         schematic.restoreAt(location);
+        for (int x = 0; x < schematic.getWidth(); x++) {
+            for (int y = 0; y < schematic.getHeight(); y++) {
+                for (int z = 0; z < schematic.getLength(); z++) {
+                    Block block = location.getWorld().getBlockAt(
+                            location.getBlockX() + x,
+                            location.getBlockY() + y,
+                            location.getBlockZ() + z);
 
+                    if (block.getType() == Material.SIGN_POST || block.getType() == Material.WALL_SIGN) {
+                        Sign sign = (Sign) block.getState();
+                        if (sign.getLine(0).equalsIgnoreCase("[EduCraft]")) {
+                            if (sign.getLine(1).equalsIgnoreCase("start")) {
+                                block.setType(Material.AIR);
+                            } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
+                                block.setType(Material.AIR);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
         entity.spawn();
         for (ManagedEntity entity : sheep) {
+            ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
             entity.spawn();
         }
     }
