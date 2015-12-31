@@ -41,8 +41,7 @@ public class EduCraftApi extends LuaTable {
                 throw new IllegalArgumentException("Initial direction must be north, east, south or west");
         }
 
-        stationary = new StationaryBehavior(entity.getEntity().getLocation().setDirection(direction), false);
-        entity.addBehavior(stationary);
+        stationary = (StationaryBehavior) entity.getBehaviors(StationaryBehavior.class).iterator().next();
 
         set("moveForward", new MoveForwardFunction().withApi(this));
         set("turnLeft", new TurnLeftFunction().withApi(this));

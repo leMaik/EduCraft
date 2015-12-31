@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Sheep;
@@ -27,6 +28,7 @@ public class EduCraftEnvironment {
 
     private ManagedEntity entity;
     private Collection<ManagedEntity> sheep = new ArrayList<>();
+    private BlockFace startDirection;
 
     public EduCraftEnvironment(ConfigurationSection config) throws IOException {
         schematic = new Schematic(Paths.get(
@@ -59,6 +61,7 @@ public class EduCraftEnvironment {
                             if (entity == null && sign.getLine(1).equalsIgnoreCase("start")) {
                                 entity = entityManager.spawn(block.getLocation(), Villager.class);
                                 entity.addBehavior(new StationaryBehavior(block.getLocation(), false));
+                                startDirection = ((org.bukkit.material.Sign) sign.getData()).getFacing();
                                 block.setType(Material.AIR);
                             } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
                                 ManagedEntity<Sheep> sheep = entityManager.spawn(block.getLocation().add(0.5, 0, 0.5), Sheep.class);
@@ -92,5 +95,9 @@ public class EduCraftEnvironment {
 
     public ManagedEntity getEntity() {
         return entity;
+    }
+
+    public BlockFace getStartDirection() {
+        return startDirection;
     }
 }

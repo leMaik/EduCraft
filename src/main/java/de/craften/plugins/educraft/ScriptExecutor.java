@@ -34,7 +34,7 @@ public class ScriptExecutor {
      */
     public ScriptExecutor(String code, EduCraftEnvironment environment, Player player) {
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(environment.getEntity(), BlockFace.NORTH));
+        engine.mergeGlobal(new EduCraftApi(environment.getEntity(), environment.getStartDirection()));
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
