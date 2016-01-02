@@ -16,6 +16,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.util.Vector;
 
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * An in-game environment that programs can be run in.
@@ -36,6 +38,7 @@ public class EduCraftEnvironment {
     private ManagedEntity entity;
     private Collection<ManagedEntity> sheep = new ArrayList<>();
     private BlockFace startDirection;
+    private UUID lockedBy;
 
 
     public EduCraftEnvironment(ConfigurationSection config) throws IOException {
@@ -226,5 +229,30 @@ public class EduCraftEnvironment {
 
                 && location.getZ() >= getLocation().getZ()
                 && location.getZ() < getLocation().getZ() + schematic.getLength();
+    }
+
+    /**
+     * Checks if  this environment is locked.
+     *
+     * @return true if this environment is locked, false if not
+     */
+    public boolean isLocked() {
+        return lockedBy != null;
+    }
+
+    /**
+     * Locks this environment.
+     *
+     * @param player player that locks this environment
+     */
+    public void lock(Player player) {
+        lockedBy = player.getUniqueId();
+    }
+
+    /**
+     * Unlocks this environment.
+     */
+    public void unlock() {
+        lockedBy = null;
     }
 }

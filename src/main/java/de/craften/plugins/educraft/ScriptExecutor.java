@@ -66,6 +66,10 @@ public class ScriptExecutor {
                 } catch (InterruptedException e) {
                     EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
                     sendMessage("The program could not be executed.");
+
+                    if (callback != null) {
+                        callback.run();
+                    }
                     return;
                 }
 
@@ -75,6 +79,10 @@ public class ScriptExecutor {
                     if (!(e.getCause() instanceof InterruptedException)) {
                         EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
                         sendMessage("The program could not be executed.");
+                    }
+
+                    if (callback != null) {
+                        callback.run();
                     }
                     return;
                 }

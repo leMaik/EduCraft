@@ -75,8 +75,13 @@ public class EduCraft extends JavaPlugin {
                     ItemStack item = player.getItemInHand();
                     if (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK) {
                         BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
-                        player.sendMessage("[EduCraft] Running your code...");
-                        runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                        EduCraftEnvironment environment = levels.get(args[1]);
+                        if (!environment.isLocked()) {
+                            player.sendMessage("[EduCraft] Running your code...");
+                            runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                        } else {
+                            player.sendMessage("[EduCraft] Sorry, someone else is running code here, try another environment.");
+                        }
                         return true;
                     } else {
                         player.sendMessage("[EduCraft] Use this command while holding a book with code.");
@@ -99,14 +104,15 @@ public class EduCraft extends JavaPlugin {
         }
     }
 
-    private void runCode(Player player, String code, EduCraftEnvironment environment) {
+    private void runCode(Player player, String code, final EduCraftEnvironment environment) {
         final UUID playerId = player.getUniqueId();
         final ScriptExecutor executor = new ScriptExecutor(code, environment, player);
+        environment.lock(player);
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
                 runningPrograms.remove(playerId, executor);
-                executor.sendMessage("Done.");
+                environment.unlock();
             }
         });
         executor.run();
