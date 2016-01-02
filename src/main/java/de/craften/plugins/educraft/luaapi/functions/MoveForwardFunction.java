@@ -21,12 +21,12 @@ public class MoveForwardFunction extends EduCraftApiFunction {
                 && getApi().getEnvironment().getSheepAt(locationAhead) == null
                 && getApi().getEnvironment().contains(locationAhead)) {
             getApi().moveTo(locationAhead, false);
-        }
 
-        while (!blockAhead.getRelative(BlockFace.DOWN).getType().isSolid() && blockAhead.getY() > 0) {
-            blockAhead = blockAhead.getRelative(BlockFace.DOWN);
+            while (!blockAhead.getRelative(BlockFace.DOWN).getType().isSolid() && blockAhead.getY() > 0) {
+                blockAhead = blockAhead.getRelative(BlockFace.DOWN);
+            }
+            getApi().moveTo(blockAhead.getLocation(), false);
         }
-        getApi().moveTo(blockAhead.getLocation(), false);
 
         return LuaValue.NIL;
     }
