@@ -46,6 +46,13 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
                 }
             }).get();
             Thread.sleep(ScriptExecutor.FUNCTION_DELAY);
+            Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    afterExecute();
+                    return null;
+                }
+            }).get();
             return returnValue;
         } catch (InterruptedException | ExecutionException e) {
             throw new LuaError(e);
@@ -53,4 +60,10 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
     }
 
     public abstract Varargs execute(Varargs varargs);
+
+    /**
+     * Method that is called after {@link #execute(Varargs)} was called and the delay is over.
+     */
+    protected void afterExecute() {
+    }
 }

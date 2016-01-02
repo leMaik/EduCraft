@@ -15,8 +15,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Sheep;
-import org.bukkit.entity.Villager;
 import org.bukkit.util.Vector;
 
 import java.io.IOException;
@@ -95,8 +95,9 @@ public class EduCraftEnvironment {
                                 startDirection = ((org.bukkit.material.Sign) sign.getData()).getFacing();
                                 Location startLocation = block.getLocation().add(0.5, 0, 0.5)
                                         .setDirection(new Vector(startDirection.getModX(), 0, startDirection.getModZ()));
-                                entity = entityManager.spawn(startLocation, Villager.class);
+                                entity = entityManager.spawn(startLocation, ArmorStand.class);
                                 entity.addBehavior(new ResetableStationaryBehavior(startLocation, false));
+                                entity.addBehavior(new LivingArmorStandBehavior());
                                 entity.spawn();
                                 block.setType(Material.AIR);
                             } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
