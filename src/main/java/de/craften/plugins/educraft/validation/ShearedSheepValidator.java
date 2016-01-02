@@ -21,7 +21,7 @@ public class ShearedSheepValidator implements ProgramValidator {
 
     @Override
     public boolean validate(EduCraftEnvironment environment) {
-        Sheep sheep = environment.getSheepAt(location);
+        Sheep sheep = environment.getSheepAtRelative(location);
         return sheep != null && sheep.isSheared();
     }
 }

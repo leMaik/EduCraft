@@ -180,9 +180,13 @@ public class EduCraftEnvironment {
         return entity;
     }
 
-    public Sheep getSheepAt(Vector location) {
+    public Sheep getSheepAtRelative(Vector location) {
+        return getSheepAt(getLocation().add(location));
+    }
+
+    public Sheep getSheepAt(Location location) {
         for (ManagedEntity sheep : this.sheep) {
-            Location sheepLocation = sheep.getEntity().getLocation().subtract(this.location);
+            Location sheepLocation = sheep.getEntity().getLocation();
             if (sheepLocation.getBlockX() == location.getBlockX()
                     && sheepLocation.getBlockY() == location.getBlockY()
                     && sheepLocation.getBlockZ() == location.getBlockZ()) {

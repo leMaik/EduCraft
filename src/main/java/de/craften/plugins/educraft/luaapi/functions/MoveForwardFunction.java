@@ -20,7 +20,7 @@ public class MoveForwardFunction extends EduCraftApiFunction {
 
         if (!blockAhead.getType().isSolid()
                 && !blockAhead.getRelative(BlockFace.UP).getType().isSolid()
-                && entities.isEmpty()) {
+                && getApi().getEnvironment().getSheepAt(blockAhead.getLocation()) == null) {
             getApi().moveTo(blockAhead.getLocation());
         }
 

@@ -1,12 +1,12 @@
 package de.craften.plugins.educraft.luaapi;
 
+import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.luaapi.functions.*;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.luaj.vm2.LuaTable;
@@ -17,14 +17,14 @@ import java.util.Collection;
  * The Lua API for EduCraft. This API works with an entity.
  */
 public class EduCraftApi extends LuaTable {
-    private final ManagedEntity entity;
+    private final EduCraftEnvironment environment;
     private final StationaryBehavior stationary;
     private Vector direction = new Vector(0, 0, -1);
 
-    public EduCraftApi(final ManagedEntity entity, BlockFace initialDirection) {
-        this.entity = entity;
-        stationary = (StationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next();
-        setDirection(new Vector(initialDirection.getModX(), 0, initialDirection.getModZ()));
+    public EduCraftApi(EduCraftEnvironment environment) {
+        this.environment = environment;
+        stationary = (StationaryBehavior) environment.getEntity().getBehaviors(ResetableStationaryBehavior.class).iterator().next();
+        setDirection(new Vector(environment.getStartDirection().getModX(), 0, environment.getStartDirection().getModZ()));
 
         set("moveForward", new MoveForwardFunction().withApi(this));
         set("turnLeft", new TurnLeftFunction().withApi(this));
@@ -40,8 +40,12 @@ public class EduCraftApi extends LuaTable {
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
     }
 
+    public EduCraftEnvironment getEnvironment() {
+        return environment;
+    }
+
     public ManagedEntity getEntity() {
-        return entity;
+        return environment.getEntity();
     }
 
     /**
