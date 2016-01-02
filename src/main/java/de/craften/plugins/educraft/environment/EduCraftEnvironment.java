@@ -157,7 +157,6 @@ public class EduCraftEnvironment {
      * @return true if the program was successfull, false if not
      */
     public boolean fulfillsRequirements() {
-        System.out.println(validators.size() + " checks...");
         for (ProgramValidator validator : validators) {
             if (!validator.validate(this)) {
                 return false;

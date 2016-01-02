@@ -43,7 +43,7 @@ public class ScriptExecutor {
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
-                sendMessage(message.tojstring());
+                sendMessage("[LOG] " + message.tojstring());
                 return LuaValue.NIL;
             }
         });
