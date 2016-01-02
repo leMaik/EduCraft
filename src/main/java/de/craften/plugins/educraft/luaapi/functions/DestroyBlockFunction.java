@@ -10,7 +10,9 @@ import org.luaj.vm2.Varargs;
 public class DestroyBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        getApi().getBlockAhead().breakNaturally();
+        if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
+            getApi().getBlockAhead().breakNaturally();
+        }
         return LuaValue.NIL;
     }
 }

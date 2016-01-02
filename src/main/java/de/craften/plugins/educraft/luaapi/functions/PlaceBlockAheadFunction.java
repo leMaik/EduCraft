@@ -10,7 +10,9 @@ import org.luaj.vm2.Varargs;
 public class PlaceBlockAheadFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        getApi().getBlockAhead().setType(PlaceBlockFunction.getMaterial(varargs.checkjstring(1)));
+        if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
+            getApi().getBlockAhead().setType(PlaceBlockFunction.getMaterial(varargs.checkjstring(1)));
+        }
         return LuaValue.NIL;
     }
 }

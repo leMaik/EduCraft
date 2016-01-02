@@ -208,4 +208,23 @@ public class EduCraftEnvironment {
     public Location getLocation() {
         return location.clone();
     }
+
+    /**
+     * Checks if the given location is inside this environment (based on the size of the schematic).
+     *
+     * @param location location to check
+     * @return true if the given location is inside the environment, false if not
+     */
+    public boolean contains(Location location) {
+        return getLocation().getWorld().equals(location.getWorld())
+
+                && location.getX() >= getLocation().getX()
+                && location.getX() < getLocation().getX() + schematic.getWidth()
+
+                && location.getY() >= getLocation().getY()
+                && location.getY() < getLocation().getY() + schematic.getHeight()
+
+                && location.getZ() >= getLocation().getZ()
+                && location.getZ() < getLocation().getZ() + schematic.getLength();
+    }
 }
