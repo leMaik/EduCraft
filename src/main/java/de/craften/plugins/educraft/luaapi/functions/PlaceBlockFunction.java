@@ -3,6 +3,7 @@ package de.craften.plugins.educraft.luaapi.functions;
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -14,8 +15,12 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         Block block = getApi().getEntity().getEntity().getLocation().getBlock();
-        block.setType(getMaterial(varargs.checkjstring(1)));
-        getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
+
+        if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
+            block.setType(getMaterial(varargs.checkjstring(1)));
+            getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
+        }
+        
         return LuaValue.NIL;
     }
 
