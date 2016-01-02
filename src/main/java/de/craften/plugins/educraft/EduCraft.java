@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -70,11 +71,17 @@ public class EduCraft extends JavaPlugin {
             Player player = (Player) sender;
             if (args.length >= 1) {
                 if (args[0].equals("run") && sender.hasPermission("educraft.run")
-                        && args.length == 2 && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
-                    BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
-                    player.sendMessage("[EduCraft] Running your code...");
-                    runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
-                    return true;
+                        && args.length == 2) {
+                    ItemStack item = player.getItemInHand();
+                    if (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK) {
+                        BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
+                        player.sendMessage("[EduCraft] Running your code...");
+                        runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                        return true;
+                    } else {
+                        player.sendMessage("[EduCraft] Use this command while holding a book with code.");
+                        return true;
+                    }
                 } else if (args[0].equals("stop") && sender.hasPermission("educraft.stop")) {
                     killAll(player.getUniqueId());
                     return true;
