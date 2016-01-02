@@ -3,7 +3,12 @@ package de.craften.plugins.educraft;
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -73,6 +78,29 @@ public class ScriptExecutor {
                     }
                     return;
                 }
+
+                Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(EduCraft.getPlugin(EduCraft.class), new Runnable() {
+                    @Override
+                    public void run() {
+                        if (environment.fulfillsRequirements()) {
+                            Location entityLocation = environment.getEntity().getEntity().getLocation();
+                            Firework firework = entityLocation.getWorld().spawn(entityLocation, Firework.class);
+                            FireworkMeta fwMeta = firework.getFireworkMeta();
+                            fwMeta.addEffects(FireworkEffect.builder()
+                                    .with(FireworkEffect.Type.STAR)
+                                    .with(FireworkEffect.Type.BURST)
+                                    .withColor(Color.ORANGE)
+                                    .withColor(Color.SILVER)
+                                    .withFlicker()
+                                    .build());
+                            fwMeta.setPower(2);
+                            firework.setFireworkMeta(fwMeta);
+                            sendMessage("Great! You did it.");
+                        } else {
+                            sendMessage("Oh no, that didn't work yet. Try again!");
+                        }
+                    }
+                });
 
                 if (callback != null) {
                     callback.run();

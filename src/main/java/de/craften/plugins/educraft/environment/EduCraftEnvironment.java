@@ -2,6 +2,10 @@ package de.craften.plugins.educraft.environment;
 
 import de.craften.plugins.educraft.EduCraft;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
+import de.craften.plugins.educraft.validation.BlockValidator;
+import de.craften.plugins.educraft.validation.BotLocationValidator;
+import de.craften.plugins.educraft.validation.ProgramValidator;
+import de.craften.plugins.educraft.validation.ShearedSheepValidator;
 import de.craften.plugins.managedentities.EntityManager;
 import de.craften.plugins.managedentities.ManagedEntity;
 import org.bukkit.Bukkit;
@@ -19,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * An in-game environment that programs can be run in.
@@ -26,10 +31,12 @@ import java.util.Collection;
 public class EduCraftEnvironment {
     private final Schematic schematic;
     private final Location location;
+    private final Collection<ProgramValidator> validators;
 
     private ManagedEntity entity;
     private Collection<ManagedEntity> sheep = new ArrayList<>();
     private BlockFace startDirection;
+
 
     public EduCraftEnvironment(ConfigurationSection config) throws IOException {
         schematic = new Schematic(Paths.get(
@@ -41,6 +48,29 @@ public class EduCraftEnvironment {
                 config.getInt("location.x"),
                 config.getInt("location.y"),
                 config.getInt("location.z"));
+
+        validators = new ArrayList<>();
+        for (Map validation : config.getMapList("validate")) {
+            if (validation.containsKey("assert")) {
+                String locationComponents[] = validation.get("at").toString().split(",");
+                Vector location = new Vector(Integer.parseInt(locationComponents[0].trim()),
+                        Integer.parseInt(locationComponents[1].trim()),
+                        Integer.parseInt(locationComponents[2].trim()));
+
+                switch (validation.get("assert").toString().toLowerCase()) {
+                    case "block":
+                        validators.add(new BlockValidator(Material.matchMaterial(validation.get("is").toString()), location));
+                        break;
+                    case "bot":
+                        validators.add(new BotLocationValidator(location));
+                        break;
+                    case "shearedsheep":
+                    case "sheared_sheep":
+                        validators.add(new ShearedSheepValidator(location));
+                        break;
+                }
+            }
+        }
 
         initialize();
     }
@@ -122,6 +152,21 @@ public class EduCraftEnvironment {
     }
 
     /**
+     * Checks if this environment fulfills all requirements of this environment and thus the program was successful.
+     *
+     * @return true if the program was successfull, false if not
+     */
+    public boolean fulfillsRequirements() {
+        System.out.println(validators.size() + " checks...");
+        for (ProgramValidator validator : validators) {
+            if (!validator.validate(this)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Removes the entities of this environment (the programmable entity and all sheep).
      */
     public void removeEntities() {
@@ -135,7 +180,28 @@ public class EduCraftEnvironment {
         return entity;
     }
 
+    public Sheep getSheepAt(Vector location) {
+        for (ManagedEntity sheep : this.sheep) {
+            Location sheepLocation = sheep.getEntity().getLocation().subtract(this.location);
+            if (sheepLocation.getBlockX() == location.getBlockX()
+                    && sheepLocation.getBlockY() == location.getBlockY()
+                    && sheepLocation.getBlockZ() == location.getBlockZ()) {
+                return (Sheep) sheep.getEntity();
+            }
+        }
+        return null;
+    }
+
     public BlockFace getStartDirection() {
         return startDirection;
+    }
+
+    /**
+     * Gets a copy of the location of this environment (the bottom north-west block).
+     *
+     * @return copy of the location of this environment
+     */
+    public Location getLocation() {
+        return location.clone();
     }
 }

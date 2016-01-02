@@ -112,7 +112,7 @@ public class Schematic {
      * @param x      relative x coordinate of the block
      * @param y      relative y coordinate of the block
      * @param z      relative z coordinate of the block
-     * @param origin location of the bottom north-east corner of the schematic
+     * @param origin location of the bottom north-west corner of the schematic
      */
     private void restoreBlock(int x, int y, int z, Location origin) {
         int index = (y * getLength() + z) * getWidth() + x;
