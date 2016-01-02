@@ -68,13 +68,17 @@ public class EduCraft extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            if (label.equals("run") && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
-                BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
-                player.sendMessage("[EduCraft] Running your code...");
-                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[0]));
-                return true;
-            } else if (label.equals("stop")) {
-                killAll(player.getUniqueId());
+            if (args.length >= 1) {
+                if (args[0].equals("run") && sender.hasPermission("educraft.run")
+                        && args.length == 2 && player.getItemInHand().getType() == Material.BOOK_AND_QUILL) {
+                    BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
+                    player.sendMessage("[EduCraft] Running your code...");
+                    runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                    return true;
+                } else if (args[0].equals("stop") && sender.hasPermission("educraft.stop")) {
+                    killAll(player.getUniqueId());
+                    return true;
+                }
             }
         }
 
