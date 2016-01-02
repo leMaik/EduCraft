@@ -79,7 +79,7 @@ public class EduCraft extends JavaPlugin {
                         if (environment != null) {
                             if (!environment.isLocked()) {
                                 player.sendMessage("[EduCraft] Running your code...");
-                                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), "\n")), levels.get(args[1]));
                             } else {
                                 player.sendMessage("[EduCraft] Someone else is running code in that environment, try another one.");
                             }
