@@ -24,7 +24,7 @@ public class MoveForwardFunction extends EduCraftApiFunction {
                 && !blockAhead.getRelative(BlockFace.UP).getType().isSolid()
                 && getApi().getEnvironment().getSheepAt(locationAhead) == null
                 && getApi().getEnvironment().contains(locationAhead)) {
-            getApi().moveTo(locationAhead);
+            getApi().moveTo(locationAhead, false);
         }
 
         return LuaValue.NIL;

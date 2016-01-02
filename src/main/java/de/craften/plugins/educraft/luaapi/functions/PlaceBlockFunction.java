@@ -14,7 +14,7 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         Block block = getApi().getEntity().getEntity().getLocation().getBlock();
-        getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0));
+        getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
         block.setType(getMaterial(varargs.checkjstring(1)));
         return LuaValue.NIL;
     }

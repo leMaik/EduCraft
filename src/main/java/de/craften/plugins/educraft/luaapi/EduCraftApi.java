@@ -66,7 +66,7 @@ public class EduCraftApi extends LuaTable {
         this.direction = direction;
 
         Location location = getLocation().clone().setDirection(direction);
-        moveTo(location);
+        moveTo(location, true);
     }
 
     /**
@@ -83,10 +83,11 @@ public class EduCraftApi extends LuaTable {
      *
      * @param location location to teleport the entity to
      */
-    public void moveTo(Location location) {
+    public void moveTo(Location location, boolean turn) {
         Location blockLocation = new Location(location.getWorld(),
                 location.getBlockX(), location.getBlockY(), location.getBlockZ(),
-                stationary.getLocation().getYaw(), stationary.getLocation().getPitch());
+                turn ? location.getYaw() : stationary.getLocation().getYaw(),
+                turn ? location.getPitch() : stationary.getLocation().getPitch());
         stationary.setLocation(blockLocation.add(0.5, 0, 0.5));
     }
 
