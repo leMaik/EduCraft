@@ -10,4 +10,6 @@ permissions:
   educraft.run:
     default: true
   educraft.stop:
-    default: op
+    default: true
+  educraft.reset:
+    default: true

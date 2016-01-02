@@ -76,16 +76,32 @@ public class EduCraft extends JavaPlugin {
                     if (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK) {
                         BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
                         EduCraftEnvironment environment = levels.get(args[1]);
-                        if (!environment.isLocked()) {
-                            player.sendMessage("[EduCraft] Running your code...");
-                            runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                        if (environment != null) {
+                            if (!environment.isLocked()) {
+                                player.sendMessage("[EduCraft] Running your code...");
+                                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), " ")), levels.get(args[1]));
+                            } else {
+                                player.sendMessage("[EduCraft] Someone else is running code in that environment, try another one.");
+                            }
                         } else {
-                            player.sendMessage("[EduCraft] Sorry, someone else is running code here, try another environment.");
+                            player.sendMessage("[EduCraft] There is no environment with that name.");
                         }
                         return true;
                     } else {
                         player.sendMessage("[EduCraft] Use this command while holding a book with code.");
                         return true;
+                    }
+                } else if (args[0].equals("reset") && args.length == 2 && sender.hasPermission("educraft.reset")) {
+                    EduCraftEnvironment environment = levels.get(args[1]);
+                    if (environment != null) {
+                        if (!environment.isLocked()) {
+                            environment.reset();
+                            player.sendMessage("[EduCraft] Environment " + args[1] + " reset.");
+                        } else {
+                            player.sendMessage("[EduCraft] Someone else is running code in that environment, you can't reset it now.");
+                        }
+                    } else {
+                        player.sendMessage("[EduCraft] There is no environment with that name.");
                     }
                 } else if (args[0].equals("stop") && sender.hasPermission("educraft.stop")) {
                     killAll(player.getUniqueId());
