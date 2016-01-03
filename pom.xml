@@ -13,6 +13,10 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>wertarbyte-repo</id>
+            <url>http://repo.wertarbyte.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
