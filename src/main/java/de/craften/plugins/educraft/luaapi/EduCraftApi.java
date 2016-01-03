@@ -18,11 +18,13 @@ import java.util.Collection;
  */
 public class EduCraftApi extends LuaTable {
     private final EduCraftEnvironment environment;
+    private final long functionDelay;
     private final StationaryBehavior stationary;
     private Vector direction = new Vector(0, 0, -1);
 
-    public EduCraftApi(EduCraftEnvironment environment) {
+    public EduCraftApi(EduCraftEnvironment environment, long functionDelay) {
         this.environment = environment;
+        this.functionDelay = functionDelay;
         stationary = (StationaryBehavior) environment.getEntity().getBehaviors(ResetableStationaryBehavior.class).iterator().next();
         setDirection(new Vector(environment.getStartDirection().getModX(), 0, environment.getStartDirection().getModZ()));
 
@@ -108,5 +110,14 @@ public class EduCraftApi extends LuaTable {
     public Collection<Entity> getEntitiesAhead() {
         Block blockAhead = getBlockAhead();
         return blockAhead.getWorld().getNearbyEntities(getBlockAhead().getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5);
+    }
+
+    /**
+     * Gets the delay between two functions.
+     *
+     * @return delay between two functions, in milliseconds
+     */
+    public long getFunctionDelay() {
+        return functionDelay;
     }
 }

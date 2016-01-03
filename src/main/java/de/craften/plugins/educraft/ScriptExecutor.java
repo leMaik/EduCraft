@@ -20,10 +20,11 @@ import java.util.logging.Level;
  * An executor for EduCraft Lua scripts.
  */
 public class ScriptExecutor {
-    public static final long FUNCTION_DELAY = 1000;
+    public static final long DEFAULT_FUNCTION_DELAY = 1000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
     private final EduCraftEnvironment environment;
+    private final long functionDelay;
     private UUID playerId;
     private Thread thread;
     private Runnable callback;
@@ -31,15 +32,17 @@ public class ScriptExecutor {
     /**
      * Creates a new script executor for the given code.
      *
-     * @param code        code to execute
-     * @param environment environment to execute the code in
-     * @param player      player that runs the code
+     * @param code          code to execute
+     * @param environment   environment to execute the code in
+     * @param player        player that runs the code
+     * @param functionDelay delay between functions, in milliseconds
      */
-    public ScriptExecutor(String code, EduCraftEnvironment environment, Player player) {
+    public ScriptExecutor(String code, EduCraftEnvironment environment, Player player, long functionDelay) {
         this.environment = environment;
+        this.functionDelay = functionDelay;
 
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(environment));
+        engine.mergeGlobal(new EduCraftApi(environment, functionDelay));
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
@@ -62,7 +65,7 @@ public class ScriptExecutor {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(FUNCTION_DELAY);
+                    Thread.sleep(functionDelay);
                 } catch (InterruptedException e) {
                     EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
                     sendMessage("The program could not be executed.");

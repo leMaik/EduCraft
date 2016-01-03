@@ -1,7 +1,6 @@
 package de.craften.plugins.educraft.luaapi;
 
 import de.craften.plugins.educraft.EduCraft;
-import de.craften.plugins.educraft.ScriptExecutor;
 import org.bukkit.Bukkit;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.Varargs;
@@ -45,7 +44,7 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
                     return execute(varargs);
                 }
             }).get();
-            Thread.sleep(ScriptExecutor.FUNCTION_DELAY);
+            Thread.sleep(Math.max(25, getApi().getFunctionDelay()));
             Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {

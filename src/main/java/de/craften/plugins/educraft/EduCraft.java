@@ -71,15 +71,16 @@ public class EduCraft extends JavaPlugin {
             Player player = (Player) sender;
             if (args.length >= 1) {
                 if (args[0].equals("run") && sender.hasPermission("educraft.run")
-                        && args.length == 2) {
+                        && args.length >= 2) {
                     ItemStack item = player.getItemInHand();
                     if (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK) {
                         BookMeta book = (BookMeta) player.getItemInHand().getItemMeta();
                         EduCraftEnvironment environment = levels.get(args[1]);
+                        long delay = args.length == 3 ? Long.parseLong(args[2]) : ScriptExecutor.DEFAULT_FUNCTION_DELAY;
                         if (environment != null) {
                             if (!environment.isLocked()) {
                                 player.sendMessage("[EduCraft] Running your code...");
-                                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), "\n")), levels.get(args[1]));
+                                runCode(player, ChatColor.stripColor(StringUtils.join(book.getPages(), "\n")), levels.get(args[1]), delay);
                             } else {
                                 player.sendMessage("[EduCraft] Someone else is running code in that environment, try another one.");
                             }
@@ -120,9 +121,9 @@ public class EduCraft extends JavaPlugin {
         }
     }
 
-    private void runCode(Player player, String code, final EduCraftEnvironment environment) {
+    private void runCode(Player player, String code, final EduCraftEnvironment environment, long delay) {
         final UUID playerId = player.getUniqueId();
-        final ScriptExecutor executor = new ScriptExecutor(code, environment, player);
+        final ScriptExecutor executor = new ScriptExecutor(code, environment, player, delay);
         environment.lock(player);
         executor.setCallback(new Runnable() {
             @Override
