@@ -3,6 +3,7 @@ package de.craften.plugins.educraft;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.environment.EnvironmentProtection;
 import de.craften.plugins.managedentities.EntityManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
@@ -19,6 +20,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -56,6 +58,8 @@ public class EduCraft extends JavaPlugin {
             }
         }
         getLogger().info(loadedLevels + " levels loaded");
+
+        getServer().getPluginManager().registerEvents(new EnvironmentProtection(), this);
     }
 
     @Override
@@ -138,5 +142,14 @@ public class EduCraft extends JavaPlugin {
 
     public EntityManager getEntityManager() {
         return manager;
+    }
+
+    /**
+     * Gets all environments.
+     *
+     * @return all environments
+     */
+    public Collection<EduCraftEnvironment> getEnvironments() {
+        return levels.values();
     }
 }
