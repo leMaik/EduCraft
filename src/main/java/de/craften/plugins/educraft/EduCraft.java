@@ -64,7 +64,12 @@ public class EduCraft extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        for (ScriptExecutor executor : runningPrograms.values()) {
+            executor.stop();
+        }
+
         for (EduCraftEnvironment environment : levels.values()) {
+            environment.reset();
             environment.removeEntities();
         }
     }
