@@ -3,13 +3,21 @@ package de.craften.plugins.educraft.environment;
 import de.craften.plugins.educraft.EduCraft;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.event.world.StructureGrowEvent;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Fire and griefing protection for environments.
@@ -120,6 +128,99 @@ public class EnvironmentProtection implements Listener {
                 event.setCancelled(true);
                 return;
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onStructureGrow(StructureGrowEvent event) {
+        boolean inEnvironment = isInEnvironment(event.getLocation());
+        List<BlockState> blocks = event.getBlocks();
+
+        Iterator<BlockState> it = blocks.iterator();
+        while (it.hasNext()) {
+            if (isInEnvironment(it.next().getLocation()) != inEnvironment) {
+                it.remove();
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (isInEnvironment(event.getLocation())) {
+            event.setCancelled(false);
+
+            List<Block> blocks = event.blockList();
+            Iterator<Block> it = blocks.iterator();
+            while (it.hasNext()) {
+                if (!isInEnvironment(it.next().getLocation())) {
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        if (isInEnvironment(event.getBlock().getLocation())) {
+            if (event.getPlayer() == null || !event.getPlayer().isOp()) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onHangingPlace(HangingPlaceEvent event) {
+        if (!event.getPlayer().isOp() && isInEnvironment(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
+        if (!event.getRemover().isOp() && isInEnvironment(event.getEntity().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (!event.getPlayer().isOp() && isInEnvironment(event.getRightClicked().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onAttack(EntityDamageByEntityEvent event) {
+        if (!event.getDamager().isOp() && isInEnvironment(event.getEntity().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerShearEntity(PlayerShearEntityEvent event) {
+        if (!event.getPlayer().isOp() && isInEnvironment(event.getEntity().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerEggThrow(PlayerEggThrowEvent event) {
+        if (!event.getPlayer().isOp() && isInEnvironment(event.getEgg().getLocation())) {
+            event.setHatching(false);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        if (!event.getEntity().isOp() && isInEnvironment(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onArmorStandManipulated(PlayerArmorStandManipulateEvent event) {
+        if (!event.getPlayer().isOp() && isInEnvironment(event.getRightClicked().getLocation())) {
+            event.setCancelled(true);
         }
     }
 }
