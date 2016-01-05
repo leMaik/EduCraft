@@ -12,7 +12,7 @@ import org.luaj.vm2.Varargs;
 public class PlaceTorchFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        Block currentBlock = getApi().getEntity().getEntity().getLocation().getBlock();
+        Block currentBlock = getApi().getLocation().getBlock();
 
         if (currentBlock.getType() == Material.AIR) {
             currentBlock.setType(Material.TORCH);

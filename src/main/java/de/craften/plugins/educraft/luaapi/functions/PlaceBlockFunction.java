@@ -14,13 +14,13 @@ import org.luaj.vm2.Varargs;
 public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        Block block = getApi().getEntity().getEntity().getLocation().getBlock();
+        Block block = getApi().getLocation().getBlock();
 
         if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
             block.setType(getMaterial(varargs.checkjstring(1)));
             getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
         }
-        
+
         return LuaValue.NIL;
     }
 
