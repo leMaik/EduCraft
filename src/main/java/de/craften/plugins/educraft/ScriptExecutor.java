@@ -21,6 +21,7 @@ import java.util.logging.Level;
  */
 public class ScriptExecutor {
     public static final long DEFAULT_FUNCTION_DELAY = 1000;
+    public static final long MAX_FUNCTION_DELAY = 3000;
     private final ScriptEngine engine;
     private final LuaValue chunk;
     private final EduCraftEnvironment environment;
@@ -39,10 +40,10 @@ public class ScriptExecutor {
      */
     public ScriptExecutor(String code, EduCraftEnvironment environment, Player player, long functionDelay) {
         this.environment = environment;
-        this.functionDelay = functionDelay;
+        this.functionDelay = Math.min(functionDelay, MAX_FUNCTION_DELAY);
 
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(environment, functionDelay));
+        engine.mergeGlobal(new EduCraftApi(environment, this.functionDelay));
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {

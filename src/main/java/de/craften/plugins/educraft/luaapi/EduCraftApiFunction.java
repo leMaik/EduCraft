@@ -44,7 +44,7 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
                     return execute(varargs);
                 }
             }).get();
-            Thread.sleep(Math.max(25, getApi().getFunctionDelay()));
+            Thread.sleep(getApi().getFunctionDelay());
             Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
