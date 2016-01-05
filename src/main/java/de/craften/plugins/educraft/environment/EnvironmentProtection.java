@@ -4,6 +4,7 @@ import de.craften.plugins.educraft.EduCraft;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -214,7 +215,7 @@ public class EnvironmentProtection implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        if (!event.getEntity().isOp() && isInEnvironment(event.getBlock().getLocation())) {
+        if (event.getEntity() instanceof Player && !event.getEntity().isOp() && isInEnvironment(event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
