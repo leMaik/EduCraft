@@ -161,10 +161,12 @@ public class EnvironmentProtection implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockIgnite(BlockIgniteEvent event) {
-        if (isInEnvironment(event.getBlock().getLocation())) {
+        if (!isInEnvironment(event.getBlock().getLocation())) {
             if (event.getPlayer() == null || !event.getPlayer().isOp()) {
                 event.setCancelled(true);
             }
+        } else if (event.getIgnitingBlock() != null && isInEnvironment(event.getIgnitingBlock().getLocation())) {
+            event.setCancelled(true);
         }
     }
 
