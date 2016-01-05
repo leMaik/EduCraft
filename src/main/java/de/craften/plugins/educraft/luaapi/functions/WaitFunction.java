@@ -12,12 +12,17 @@ public class WaitFunction extends EduCraftApiFunction {
     private static final long DEFAULT_TIME = 1000;
 
     @Override
-    public Varargs execute(Varargs varargs) {
+    public Varargs invoke(Varargs varargs) {
         try {
-            Thread.sleep(varargs.optlong(1, DEFAULT_TIME));
+            Thread.sleep(varargs.optlong(1, DEFAULT_TIME) + getApi().getFunctionDelay());
         } catch (InterruptedException e) {
             throw new LuaError(e);
         }
         return LuaValue.NIL;
+    }
+
+    @Override
+    public Varargs execute(Varargs varargs) {
+        return LuaValue.NIL; //no-op (this is not invoked)
     }
 }
