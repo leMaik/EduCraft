@@ -60,6 +60,7 @@ public class ScriptExecutor {
      */
     public void run() {
         stop();
+        resetEnvironment();
 
         thread = new Thread(new Runnable() {
             @Override
@@ -123,20 +124,13 @@ public class ScriptExecutor {
     }
 
     /**
-     * Stops the script if it is running, and resets the environment.
+     * Stops the script if it is running. This does not reset the environment.
      */
     public void stop() {
         if (thread != null) {
             thread.interrupt();
             thread = null;
         }
-
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(EduCraft.getPlugin(EduCraft.class), new Runnable() {
-            @Override
-            public void run() {
-                environment.reset();
-            }
-        });
     }
 
     public boolean isRunning() {
@@ -152,5 +146,12 @@ public class ScriptExecutor {
         if (player != null) {
             player.sendMessage("[EduCraft] " + message);
         }
+    }
+
+    /**
+     * Resets the environment this script is executed in.
+     */
+    public void resetEnvironment() {
+        environment.reset(true);
     }
 }

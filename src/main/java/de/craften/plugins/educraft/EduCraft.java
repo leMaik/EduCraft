@@ -69,8 +69,7 @@ public class EduCraft extends JavaPlugin {
         }
 
         for (EduCraftEnvironment environment : levels.values()) {
-            environment.reset();
-            environment.removeEntities();
+            environment.reset(false);
         }
     }
 
@@ -105,7 +104,7 @@ public class EduCraft extends JavaPlugin {
                     EduCraftEnvironment environment = levels.get(args[1]);
                     if (environment != null) {
                         if (!environment.isLocked()) {
-                            environment.reset();
+                            environment.reset(true);
                             player.sendMessage("[EduCraft] Environment " + args[1] + " reset.");
                         } else {
                             player.sendMessage("[EduCraft] Someone else is running code in that environment, you can't reset it now.");
@@ -126,6 +125,7 @@ public class EduCraft extends JavaPlugin {
     private void killAll(UUID playerId) {
         for (ScriptExecutor executor : runningPrograms.removeAll(playerId)) {
             executor.stop();
+            executor.resetEnvironment();
             executor.sendMessage("Stopped.");
         }
     }

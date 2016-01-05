@@ -121,7 +121,12 @@ public class EduCraftEnvironment {
         }
     }
 
-    public void reset() {
+    /**
+     * Resets this environment.
+     *
+     * @param respawn true if the entities should be respawned, false if they should only be removed
+     */
+    public void reset(boolean respawn) {
         removeEntities();
 
         schematic.restoreAt(location);
@@ -147,11 +152,13 @@ public class EduCraftEnvironment {
             }
         }
 
-        ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
-        entity.spawn();
-        for (ManagedEntity entity : sheep) {
+        if (respawn) {
             ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
             entity.spawn();
+            for (ManagedEntity entity : sheep) {
+                ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
+                entity.spawn();
+            }
         }
     }
 
