@@ -17,7 +17,7 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
         armorStand.setItemInHand(new ItemStack(Material.DIAMOND_PICKAXE));
 
         if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
-            getApi().getBlockAhead().breakNaturally();
+            getApi().getBlockAhead().setType(Material.AIR);
         }
         return LuaValue.NIL;
     }
