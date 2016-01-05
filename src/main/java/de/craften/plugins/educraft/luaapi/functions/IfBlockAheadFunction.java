@@ -20,26 +20,30 @@ public class IfBlockAheadFunction extends EduCraftApiFunction {
         Block blockAhead = getApi().getBlockAhead();
         boolean isAhead;
 
-        switch (varargs.checkjstring(1)) {
-            case "":
-                isAhead = blockAhead.isEmpty();
-                break;
-            case "lava":
-                blockAhead = blockAhead.getRelative(BlockFace.DOWN);
-                isAhead = blockAhead.getType() == Material.LAVA || blockAhead.getType() == Material.STATIONARY_LAVA;
-                break;
-            case "water":
-                blockAhead = blockAhead.getRelative(BlockFace.DOWN);
-                isAhead = blockAhead.getType() == Material.WATER || blockAhead.getType() == Material.STATIONARY_WATER;
-                break;
-            default:
-                throw new LuaError("Unsupported block type, must be '', 'lava' or 'water'.");
+        if (varargs.narg() == 0) {
+            isAhead = blockAhead.getType().isSolid();
+        } else {
+            switch (varargs.checkjstring(1)) {
+                case "air":
+                case "":
+                    isAhead = blockAhead.isEmpty();
+                    break;
+                case "lava":
+                    blockAhead = blockAhead.getRelative(BlockFace.DOWN);
+                    isAhead = blockAhead.getType() == Material.LAVA || blockAhead.getType() == Material.STATIONARY_LAVA;
+                    break;
+                case "water":
+                    blockAhead = blockAhead.getRelative(BlockFace.DOWN);
+                    isAhead = blockAhead.getType() == Material.WATER || blockAhead.getType() == Material.STATIONARY_WATER;
+                    break;
+                default:
+                    throw new LuaError("Unsupported block type, must be '', 'lava' or 'water'.");
+            }
         }
 
         if (isAhead) {
             varargs.checkfunction(2).invoke();
         }
-
         return LuaValue.NIL;
     }
 }
