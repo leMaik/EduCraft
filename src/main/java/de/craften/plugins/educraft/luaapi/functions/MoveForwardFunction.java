@@ -13,21 +13,30 @@ import org.luaj.vm2.Varargs;
 public class MoveForwardFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        Block blockAhead = getApi().getBlockAhead();
-        Location locationAhead = blockAhead.getLocation();
+        Block targetBlock = getTargetBlock();
+        Location targetLocation = targetBlock.getLocation();
 
-        if (!blockAhead.getType().isSolid()
-                && !blockAhead.getRelative(BlockFace.UP).getType().isSolid()
-                && getApi().getEnvironment().getSheepAt(locationAhead) == null
-                && getApi().getEnvironment().contains(locationAhead)) {
-            getApi().moveTo(locationAhead, false);
+        if (!targetBlock.getType().isSolid()
+                && !targetBlock.getRelative(BlockFace.UP).getType().isSolid()
+                && getApi().getEnvironment().getSheepAt(targetLocation) == null
+                && getApi().getEnvironment().contains(targetLocation)) {
+            getApi().moveTo(targetLocation, false);
 
-            while (!blockAhead.getRelative(BlockFace.DOWN).getType().isSolid() && blockAhead.getY() > 0) {
-                blockAhead = blockAhead.getRelative(BlockFace.DOWN);
+            while (!targetBlock.getRelative(BlockFace.DOWN).getType().isSolid() && targetBlock.getY() > 0) {
+                targetBlock = targetBlock.getRelative(BlockFace.DOWN);
             }
-            getApi().moveTo(blockAhead.getLocation(), false);
+            getApi().moveTo(targetBlock.getLocation(), false);
         }
 
         return LuaValue.NIL;
+    }
+
+    /**
+     * Gets the block this function will move the entity to.
+     *
+     * @return target block
+     */
+    protected Block getTargetBlock() {
+        return getApi().getBlockAhead();
     }
 }
