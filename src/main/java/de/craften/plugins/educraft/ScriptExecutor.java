@@ -2,16 +2,18 @@ package de.craften.plugins.educraft;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.VarArgFunction;
 
 import java.util.UUID;
 import java.util.logging.Level;
@@ -38,7 +40,7 @@ public class ScriptExecutor {
      * @param player        player that runs the code
      * @param functionDelay delay between functions, in milliseconds
      */
-    public ScriptExecutor(String code, EduCraftEnvironment environment, Player player, long functionDelay) {
+    public ScriptExecutor(String code, EduCraftEnvironment environment, final Player player, long functionDelay) {
         this.environment = environment;
         this.functionDelay = Math.min(functionDelay, MAX_FUNCTION_DELAY);
 
@@ -48,6 +50,21 @@ public class ScriptExecutor {
             @Override
             public LuaValue call(LuaValue message) {
                 sendMessage("[LOG] " + message.tojstring());
+                return LuaValue.NIL;
+            }
+        });
+        engine.setGlobal("require", new VarArgFunction() {
+            @Override
+            public Varargs invoke(Varargs args) {
+                for (ItemStack item : player.getInventory()) {
+                    if (item != null && (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK)) {
+                        BookMeta book = (BookMeta) item.getItemMeta();
+                        if (book.getTitle() != null && book.getTitle().equalsIgnoreCase(args.checkjstring(1))) {
+                            String code = ChatColor.stripColor(StringUtils.join(book.getPages(), "\n"));
+                            return engine.compile(code).invoke();
+                        }
+                    }
+                }
                 return LuaValue.NIL;
             }
         });
