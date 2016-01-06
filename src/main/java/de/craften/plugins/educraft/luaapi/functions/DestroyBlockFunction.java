@@ -12,10 +12,13 @@ import org.luaj.vm2.Varargs;
  */
 public class DestroyBlockFunction extends EduCraftApiFunction {
     @Override
-    public Varargs execute(Varargs varargs) {
+    protected void beforeExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(new ItemStack(Material.DIAMOND_PICKAXE));
+    }
 
+    @Override
+    public Varargs execute(Varargs varargs) {
         if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
             getApi().getBlockAhead().setType(Material.AIR);
         }
@@ -23,7 +26,7 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
     }
 
     @Override
-    protected void afterExecute() {
+    protected void afterExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(null);
     }

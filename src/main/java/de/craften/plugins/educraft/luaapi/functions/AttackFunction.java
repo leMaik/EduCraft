@@ -16,10 +16,13 @@ public class AttackFunction extends EduCraftApiFunction {
     private static final double DAMAGE = 8; //same as diamond sword
 
     @Override
-    public Varargs execute(Varargs varargs) {
+    protected void beforeExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(new ItemStack(Material.DIAMOND_SWORD));
+    }
 
+    @Override
+    public Varargs execute(Varargs varargs) {
         for (Entity entity : getApi().getEntitiesAhead()) {
             if (entity instanceof Damageable) {
                 ((Damageable) entity).damage(DAMAGE);
@@ -30,7 +33,7 @@ public class AttackFunction extends EduCraftApiFunction {
     }
 
     @Override
-    protected void afterExecute() {
+    protected void afterExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(null);
     }

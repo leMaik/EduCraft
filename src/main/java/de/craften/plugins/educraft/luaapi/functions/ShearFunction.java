@@ -14,10 +14,13 @@ import org.luaj.vm2.Varargs;
  */
 public class ShearFunction extends EduCraftApiFunction {
     @Override
-    public Varargs execute(Varargs varargs) {
+    protected void beforeExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(new ItemStack(Material.SHEARS));
+    }
 
+    @Override
+    public Varargs execute(Varargs varargs) {
         for (Entity entity : getApi().getEntitiesAhead()) {
             if (entity instanceof Sheep) {
                 ((Sheep) entity).setSheared(true);
@@ -29,7 +32,7 @@ public class ShearFunction extends EduCraftApiFunction {
     }
 
     @Override
-    protected void afterExecute() {
+    protected void afterExecute(Varargs varargs) {
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
         armorStand.setItemInHand(null);
     }

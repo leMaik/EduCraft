@@ -38,17 +38,25 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
     @Override
     public Varargs invoke(final Varargs varargs) {
         try {
+            Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    beforeExecute(varargs);
+                    return null;
+                }
+            }).get();
+            Thread.sleep(getApi().getFunctionDelay() / 2);
             Varargs returnValue = Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Varargs>() {
                 @Override
                 public Varargs call() throws Exception {
                     return execute(varargs);
                 }
             }).get();
-            Thread.sleep(getApi().getFunctionDelay());
+            Thread.sleep(getApi().getFunctionDelay() / 2);
             Bukkit.getScheduler().callSyncMethod(EduCraft.getPlugin(EduCraft.class), new Callable<Void>() {
                 @Override
                 public Void call() throws Exception {
-                    afterExecute();
+                    afterExecute(varargs);
                     return null;
                 }
             }).get();
@@ -58,11 +66,28 @@ public abstract class EduCraftApiFunction extends VarArgFunction {
         }
     }
 
+    /**
+     * Executes the main function. This must work without calling {@link #beforeExecute(Varargs)} before or
+     * {@link #afterExecute(Varargs)} after invoking this function.
+     *
+     * @param varargs arguments the function was invoked with
+     * @return return values of this function
+     */
     public abstract Varargs execute(Varargs varargs);
 
     /**
-     * Method that is called after {@link #execute(Varargs)} was called and the delay is over.
+     * Method that is called before {@link #execute(Varargs)} is called. This may be used for animations.
+     *
+     * @param varargs arguments the function was invoked with
      */
-    protected void afterExecute() {
+    protected void beforeExecute(Varargs varargs) {
+    }
+
+    /**
+     * Method that is called after {@link #execute(Varargs)} was called. This may be used for animations.
+     *
+     * @param varargs arguments the function was invoked with
+     */
+    protected void afterExecute(Varargs varargs) {
     }
 }
