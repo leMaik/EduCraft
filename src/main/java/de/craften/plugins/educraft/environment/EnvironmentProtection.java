@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
@@ -224,6 +225,13 @@ public class EnvironmentProtection implements Listener {
     public void onArmorStandManipulated(PlayerArmorStandManipulateEvent event) {
         if (!event.getPlayer().isOp() && isInEnvironment(event.getRightClicked().getLocation())) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (isInEnvironment(event.getEntity().getLocation())) {
+            event.getDrops().clear();
         }
     }
 }
