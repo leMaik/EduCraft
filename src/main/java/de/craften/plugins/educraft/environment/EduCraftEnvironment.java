@@ -34,7 +34,7 @@ public class EduCraftEnvironment {
     private final Collection<ProgramValidator> validators;
 
     private ManagedEntity entity;
-    private Collection<ManagedEntity> sheep = new ArrayList<>();
+    private Collection<ManagedEntity> entities = new ArrayList<>();
     private BlockFace startDirection;
     private UUID lockedBy;
 
@@ -108,7 +108,7 @@ public class EduCraftEnvironment {
                             } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
                                 ManagedEntity<Sheep> sheep = entityManager.spawn(block.getLocation().add(0.5, 0, 0.5), Sheep.class);
                                 sheep.addBehavior(new ResetableStationaryBehavior(block.getLocation().add(0.5, 0, 0.5), false));
-                                this.sheep.add(sheep);
+                                this.entities.add(sheep);
                                 sheep.spawn();
                                 block.setType(Material.AIR);
                             }
@@ -157,7 +157,7 @@ public class EduCraftEnvironment {
         if (respawn) {
             ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
             entity.spawn();
-            for (ManagedEntity entity : sheep) {
+            for (ManagedEntity entity : entities) {
                 ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
                 entity.spawn();
             }
@@ -179,11 +179,11 @@ public class EduCraftEnvironment {
     }
 
     /**
-     * Removes the entities of this environment (the programmable entity and all sheep).
+     * Removes the entities of this environment (the programmable entity and all requisite entities).
      */
     public void removeEntities() {
         entity.remove();
-        for (ManagedEntity entity : sheep) {
+        for (ManagedEntity entity : entities) {
             entity.remove();
         }
     }
@@ -196,8 +196,15 @@ public class EduCraftEnvironment {
         return getEntityAt(getLocation().add(location));
     }
 
+    /**
+     * Gets the entity at the given location. Note that this may also return dead entities that were killed while
+     * running the program.
+     *
+     * @param location location
+     * @return the entity at the given location or null if there is no entity at the given location
+     */
     public Entity getEntityAt(Location location) {
-        for (ManagedEntity sheep : this.sheep) {
+        for (ManagedEntity sheep : this.entities) {
             Location entityLocation = sheep.getEntity().getLocation();
             if (entityLocation.getBlockX() == location.getBlockX()
                     && entityLocation.getBlockY() == location.getBlockY()
@@ -206,6 +213,17 @@ public class EduCraftEnvironment {
             }
         }
         return null;
+    }
+
+    /**
+     * Checks if a living entity is at the given location.
+     *
+     * @param location location to check
+     * @return true if a living entity is at the given location, false if not
+     */
+    public boolean isAliveEntityAt(Location location) {
+        Entity entity = getEntityAt(location);
+        return entity != null && !entity.isDead();
     }
 
     public BlockFace getStartDirection() {

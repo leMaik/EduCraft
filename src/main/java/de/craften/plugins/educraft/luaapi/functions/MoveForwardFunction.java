@@ -18,7 +18,7 @@ public class MoveForwardFunction extends EduCraftApiFunction {
 
         if (!targetBlock.getType().isSolid()
                 && !targetBlock.getRelative(BlockFace.UP).getType().isSolid()
-                && getApi().getEnvironment().getEntityAt(targetLocation) == null
+                && !getApi().getEnvironment().isAliveEntityAt(targetLocation)
                 && getApi().getEnvironment().contains(targetLocation)) {
             getApi().moveTo(targetLocation, false);
 
