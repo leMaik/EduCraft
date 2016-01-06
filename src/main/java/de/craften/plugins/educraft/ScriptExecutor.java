@@ -25,7 +25,7 @@ public class ScriptExecutor {
     public static final long DEFAULT_FUNCTION_DELAY = 1000;
     public static final long MAX_FUNCTION_DELAY = 3000;
     private final ScriptEngine engine;
-    private final LuaValue chunk;
+    private final String code;
     private final EduCraftEnvironment environment;
     private final long functionDelay;
     private UUID playerId;
@@ -68,7 +68,7 @@ public class ScriptExecutor {
                 return LuaValue.NIL;
             }
         });
-        chunk = engine.compile(code);
+        this.code = code;
         playerId = player.getUniqueId();
     }
 
@@ -96,7 +96,7 @@ public class ScriptExecutor {
                 }
 
                 try {
-                    chunk.invoke();
+                    engine.compile(code).invoke();
                 } catch (LuaError e) {
                     if (!(e.getCause() instanceof InterruptedException)) {
                         EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
