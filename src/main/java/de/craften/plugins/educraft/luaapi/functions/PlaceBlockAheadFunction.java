@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft.luaapi.functions;
 
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
+import org.bukkit.Location;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
@@ -10,7 +11,8 @@ import org.luaj.vm2.Varargs;
 public class PlaceBlockAheadFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
-        if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
+        Location location = getApi().getBlockAhead().getLocation();
+        if (getApi().getEnvironment().contains(location) && !getApi().getEnvironment().isAliveEntityAt(location)) {
             getApi().getBlockAhead().setType(PlaceBlockFunction.getMaterial(varargs.checkjstring(1)));
         }
         return LuaValue.NIL;
