@@ -2,10 +2,7 @@ package de.craften.plugins.educraft.environment;
 
 import de.craften.plugins.educraft.EduCraft;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
-import de.craften.plugins.educraft.validation.BlockValidator;
-import de.craften.plugins.educraft.validation.BotLocationValidator;
-import de.craften.plugins.educraft.validation.ProgramValidator;
-import de.craften.plugins.educraft.validation.ShearedSheepValidator;
+import de.craften.plugins.educraft.validation.*;
 import de.craften.plugins.managedentities.EntityManager;
 import de.craften.plugins.managedentities.ManagedEntity;
 import org.bukkit.Bukkit;
@@ -16,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.util.Vector;
@@ -70,6 +68,10 @@ public class EduCraftEnvironment {
                     case "shearedsheep":
                     case "sheared_sheep":
                         validators.add(new ShearedSheepValidator(location));
+                        break;
+                    case "deadentity":
+                    case "dead_entity":
+                        validators.add(new DeadEntityValidator(location));
                         break;
                 }
             }
@@ -190,17 +192,17 @@ public class EduCraftEnvironment {
         return entity;
     }
 
-    public Sheep getSheepAtRelative(Vector location) {
-        return getSheepAt(getLocation().add(location));
+    public Entity getEntityAtRelative(Vector location) {
+        return getEntityAt(getLocation().add(location));
     }
 
-    public Sheep getSheepAt(Location location) {
+    public Entity getEntityAt(Location location) {
         for (ManagedEntity sheep : this.sheep) {
-            Location sheepLocation = sheep.getEntity().getLocation();
-            if (sheepLocation.getBlockX() == location.getBlockX()
-                    && sheepLocation.getBlockY() == location.getBlockY()
-                    && sheepLocation.getBlockZ() == location.getBlockZ()) {
-                return (Sheep) sheep.getEntity();
+            Location entityLocation = sheep.getEntity().getLocation();
+            if (entityLocation.getBlockX() == location.getBlockX()
+                    && entityLocation.getBlockY() == location.getBlockY()
+                    && entityLocation.getBlockZ() == location.getBlockZ()) {
+                return sheep.getEntity();
             }
         }
         return null;
