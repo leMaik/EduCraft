@@ -1,9 +1,11 @@
 package de.craften.plugins.educraft.luaapi.functions;
 
+import de.craften.plugins.educraft.environment.LivingArmorStandBehavior;
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.ItemStack;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -15,13 +17,23 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         Block block = getApi().getLocation().getBlock();
+        Material material = getMaterial(varargs.checkjstring(1));
+
+        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+        armorStand.setItemInHand(new ItemStack(material));
 
         if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
-            block.setType(getMaterial(varargs.checkjstring(1)));
+            block.setType(material);
             getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
         }
 
         return LuaValue.NIL;
+    }
+
+    @Override
+    protected void afterExecute() {
+        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+        armorStand.setItemInHand(null);
     }
 
     public static Material getMaterial(String name) {
