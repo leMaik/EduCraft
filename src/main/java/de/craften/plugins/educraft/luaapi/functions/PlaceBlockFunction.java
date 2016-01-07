@@ -11,7 +11,8 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
 /**
- * Lua API function that places a block where the entity stands and moves the entity one up.
+ * Lua API function that places a block where the entity stands, adding an optional offset. Moves the entity one up, if
+ * the block is placed on its position.
  */
 public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
