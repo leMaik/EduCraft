@@ -44,7 +44,7 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
                     getApi().moveTo(block.getLocation().add(0, 1, 0), false);
                 }
             }
-        } else if (getApi().getEnvironment().contains(block.getLocation()) && block.isEmpty()) {
+        } else if (getApi().getEnvironment().contains(block.getLocation()) && !block.getType().isSolid()) {
             block.setType(getMaterial(varargs.checkjstring(1)));
         }
 
