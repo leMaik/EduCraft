@@ -22,11 +22,30 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
 
     @Override
     public Varargs execute(Varargs varargs) {
-        Block block = getApi().getLocation().getBlock();
+        int forwardBackward = varargs.optint(2, 0);
+        if (forwardBackward < -1 || forwardBackward > 1) {
+            throw new LuaError("forward/backward offset must be between -1 and 1");
+        }
+        int upDown = varargs.optint(3, 0);
+        if (upDown < -1 || upDown > 2) {
+            throw new LuaError("up/down offset must be between -1 and 2");
+        }
 
-        if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
+        Block block = getApi().getLocation().clone()
+                .add(getApi().getDirection().clone().normalize().multiply(forwardBackward))
+                .add(0, upDown, 0)
+                .getBlock();
+
+        if (forwardBackward == 0 && upDown == 0) {
+            if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
+                Material material = getMaterial(varargs.checkjstring(1));
+                block.setType(material);
+                if (material.isSolid()) {
+                    getApi().moveTo(block.getLocation().add(0, 1, 0), false);
+                }
+            }
+        } else if (getApi().getEnvironment().contains(block.getLocation()) && block.isEmpty()) {
             block.setType(getMaterial(varargs.checkjstring(1)));
-            getApi().moveTo(getApi().getLocation().clone().add(0, 1, 0), false);
         }
 
         LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
