@@ -24,8 +24,8 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         int forwardBackward = varargs.optint(2, 0);
-        if (forwardBackward < -1 || forwardBackward > 1) {
-            throw new LuaError("forward/backward offset must be between -1 and 1");
+        if (forwardBackward < 0 || forwardBackward > 1) {
+            throw new LuaError("forward/backward offset must be either 0 or 1");
         }
         int upDown = varargs.optint(3, 0);
         if (upDown < -1 || upDown > 2) {
