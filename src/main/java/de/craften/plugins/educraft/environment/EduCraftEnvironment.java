@@ -156,6 +156,7 @@ public class EduCraftEnvironment {
 
         if (respawn) {
             ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
+            ((LivingArmorStandBehavior) entity.getBehaviors(LivingArmorStandBehavior.class).iterator().next()).setItemInHand(null);
             entity.spawn();
             for (ManagedEntity entity : entities) {
                 ((ResetableStationaryBehavior) entity.getBehaviors(ResetableStationaryBehavior.class).iterator().next()).reset();
