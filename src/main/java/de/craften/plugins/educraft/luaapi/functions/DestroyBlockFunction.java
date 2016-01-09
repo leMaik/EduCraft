@@ -3,7 +3,10 @@ package de.craften.plugins.educraft.luaapi.functions;
 import de.craften.plugins.educraft.environment.LivingArmorStandBehavior;
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.ItemStack;
+import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 
@@ -19,9 +22,34 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
 
     @Override
     public Varargs execute(Varargs varargs) {
-        if (getApi().getEnvironment().contains(getApi().getBlockAhead().getLocation())) {
-            getApi().getBlockAhead().setType(Material.AIR);
+        int forwardBackward = varargs.optint(1, 1);
+        if (forwardBackward < 0 || forwardBackward > 1) {
+            throw new LuaError("forward/backward offset must be either 0 or 1");
         }
+        int upDown = varargs.optint(2, 0);
+        if (upDown < -1 || upDown > 2) {
+            throw new LuaError("up/down offset must be between -1 and 2");
+        }
+
+        Block block = getApi().getLocation().clone()
+                .add(getApi().getDirection().clone().normalize().multiply(forwardBackward))
+                .add(0, upDown, 0)
+                .getBlock();
+
+        if (getApi().getEnvironment().contains(block.getLocation())) {
+            block.setType(Material.AIR);
+
+            if (forwardBackward == 0 && upDown == -1) {
+                //block below was destroyed => fall on solid block (without falling out of the environment)
+                Block targetBlock = block.getRelative(BlockFace.DOWN);
+                while (!targetBlock.getRelative(BlockFace.DOWN).getType().isSolid()
+                        && getApi().getEnvironment().contains(targetBlock.getLocation().subtract(0, -1, 0))) {
+                    targetBlock = targetBlock.getRelative(BlockFace.DOWN);
+                }
+                getApi().moveTo(targetBlock.getLocation(), false);
+            }
+        }
+
         return LuaValue.NIL;
     }
 
