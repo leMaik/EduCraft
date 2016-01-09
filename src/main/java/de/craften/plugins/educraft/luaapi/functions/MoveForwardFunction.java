@@ -22,7 +22,9 @@ public class MoveForwardFunction extends EduCraftApiFunction {
                 && getApi().getEnvironment().contains(targetLocation)) {
             getApi().moveTo(targetLocation, false);
 
-            while (!targetBlock.getRelative(BlockFace.DOWN).getType().isSolid() && targetBlock.getY() > 0) {
+            //fall on solid block (without falling out of the environment)
+            while (!targetBlock.getRelative(BlockFace.DOWN).getType().isSolid()
+                    && getApi().getEnvironment().contains(targetBlock.getLocation().subtract(0, -1, 0))) {
                 targetBlock = targetBlock.getRelative(BlockFace.DOWN);
             }
             getApi().moveTo(targetBlock.getLocation(), false);
