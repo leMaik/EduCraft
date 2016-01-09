@@ -41,7 +41,7 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
 
             if (forwardBackward == 0 && upDown == -1) {
                 //block below was destroyed => fall on solid block (without falling out of the environment)
-                Block targetBlock = block.getRelative(BlockFace.DOWN);
+                Block targetBlock = block;
                 while (!targetBlock.getRelative(BlockFace.DOWN).getType().isSolid()
                         && getApi().getEnvironment().contains(targetBlock.getLocation().subtract(0, -1, 0))) {
                     targetBlock = targetBlock.getRelative(BlockFace.DOWN);
