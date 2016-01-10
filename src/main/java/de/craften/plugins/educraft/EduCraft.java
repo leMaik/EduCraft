@@ -41,7 +41,7 @@ public class EduCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new Listener() {
             @EventHandler
             public void onPlayerQuit(PlayerQuitEvent event) {
-                killAll(event.getPlayer().getUniqueId());
+                stopAllPrograms(event.getPlayer().getUniqueId());
             }
         }, this);
 
@@ -95,23 +95,28 @@ public class EduCraft extends JavaPlugin {
                         } else {
                             player.sendMessage("[EduCraft] There is no environment with that name.");
                         }
-                        return true;
                     } else {
                         player.sendMessage("[EduCraft] Use this command while holding a book with code.");
-                        return true;
                     }
+                    return true;
                 } else if (args[0].equals("reset") && args.length == 2 && sender.hasPermission("educraft.reset")) {
                     EduCraftEnvironment environment = levels.get(args[1]);
                     if (environment != null) {
-                        if (!environment.isLocked()) {
-                            environment.reset(true);
-                            player.sendMessage("[EduCraft] Environment " + args[1] + " reset.");
-                        } else {
-                            player.sendMessage("[EduCraft] Someone else is running code in that environment, you can't reset it now.");
+                        ScriptExecutor executor = getExecutorIn(environment);
+                        if (executor != null) {
+                            if (sender.hasPermission("educraft.stop.any") || (sender instanceof Player && executor.getPlayerId().equals(((Player) sender).getUniqueId()))) {
+                                stopProgram(executor);
+                            } else {
+                                player.sendMessage("[EduCraft] Someone else is running code in that environment, you can't reset it now.");
+                                return true;
+                            }
                         }
+                        environment.reset(true);
+                        player.sendMessage("[EduCraft] Environment " + args[1] + " reset.");
                     } else {
                         player.sendMessage("[EduCraft] There is no environment with that name.");
                     }
+                    return true;
                 } else if (args[0].equals("stop") && sender.hasPermission("educraft.stop")) {
                     if (args.length == 2) {
                         EduCraftEnvironment environment = levels.get(args[1]);
@@ -119,11 +124,9 @@ public class EduCraft extends JavaPlugin {
                             ScriptExecutor executor = getExecutorIn(environment);
                             if (executor != null) {
                                 if ((sender instanceof Player && executor.getPlayerId().equals(((Player) sender).getUniqueId()))) {
-                                    kill(executor);
-                                    runningPrograms.remove(executor.getPlayerId(), executor);
+                                    stopProgram(executor);
                                 } else if (sender.hasPermission("educraft.stop.any")) {
-                                    kill(executor);
-                                    runningPrograms.remove(executor.getPlayerId(), executor);
+                                    stopProgram(executor);
                                     sender.sendMessage("[EduCraft] Program stopped.");
                                 } else {
                                     sender.sendMessage("[EduCraft] You have no permission to stop the program that runs in that environment.");
@@ -135,7 +138,7 @@ public class EduCraft extends JavaPlugin {
                             player.sendMessage("[EduCraft] There is no environment with that name.");
                         }
                     } else {
-                        killAll(player.getUniqueId());
+                        stopAllPrograms(player.getUniqueId());
                     }
                     return true;
                 }
@@ -154,16 +157,16 @@ public class EduCraft extends JavaPlugin {
         return null;
     }
 
-    private void killAll(UUID playerId) {
+    private void stopAllPrograms(UUID playerId) {
         for (ScriptExecutor executor : runningPrograms.removeAll(playerId)) {
-            kill(executor);
+            stopProgram(executor);
         }
     }
 
-    private void kill(ScriptExecutor executor) {
+    private void stopProgram(ScriptExecutor executor) {
         executor.stop();
-        executor.getEnvironment().reset(true);
         executor.getEnvironment().unlock();
+        runningPrograms.remove(executor.getPlayerId(), executor);
         executor.sendMessage("Stopped.");
     }
 
