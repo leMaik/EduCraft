@@ -11,5 +11,7 @@ permissions:
     default: true
   educraft.stop:
     default: true
+  educraft.stop.any:
+    default: op
   educraft.reset:
     default: true

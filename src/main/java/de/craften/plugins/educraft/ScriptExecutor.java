@@ -78,7 +78,7 @@ public class ScriptExecutor {
      */
     public void run() {
         stop();
-        resetEnvironment();
+        getEnvironment().reset(true);
 
         thread = new Thread(new Runnable() {
             @Override
@@ -151,10 +151,6 @@ public class ScriptExecutor {
         }
     }
 
-    public boolean isRunning() {
-        return thread != null;
-    }
-
     public void setCallback(Runnable callback) {
         this.callback = callback;
     }
@@ -167,9 +163,20 @@ public class ScriptExecutor {
     }
 
     /**
-     * Resets the environment this script is executed in.
+     * Gets the ID of the player that started this executor.
+     *
+     * @return the ID of the player that started this executor
      */
-    public void resetEnvironment() {
-        environment.reset(true);
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
+    /**
+     * Gets the environment this executor runs the code in.
+     *
+     * @return the environment this executor runs the code in
+     */
+    public EduCraftEnvironment getEnvironment() {
+        return environment;
     }
 }
