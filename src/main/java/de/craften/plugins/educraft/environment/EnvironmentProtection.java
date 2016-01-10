@@ -9,10 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.*;
@@ -26,18 +23,28 @@ import java.util.List;
  */
 public class EnvironmentProtection implements Listener {
     /**
+     * Gets the environment at the given location.
+     *
+     * @param location location to get the environment at
+     * @return the environment at the given location or null if none exists
+     */
+    private static EduCraftEnvironment getEnvironment(Location location) {
+        for (EduCraftEnvironment environment : EduCraft.getPlugin(EduCraft.class).getEnvironments()) {
+            if (environment.contains(location)) {
+                return environment;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Checks if the given location is in any environment.
      *
      * @param location location to check
      * @return true if the given location is in any environment, false if not
      */
     private static boolean isInEnvironment(Location location) {
-        for (EduCraftEnvironment environment : EduCraft.getPlugin(EduCraft.class).getEnvironments()) {
-            if (environment.contains(location)) {
-                return true;
-            }
-        }
-        return false;
+        return getEnvironment(location) != null;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -169,6 +176,19 @@ public class EnvironmentProtection implements Listener {
             }
         } else if (event.getIgnitingBlock() != null && isInEnvironment(event.getIgnitingBlock().getLocation())) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityDamage(EntityDamageEvent event) {
+        EduCraftEnvironment environment = getEnvironment(event.getEntity().getLocation());
+        if (environment != null) {
+            if (event.getEntity().equals(environment.getEntity().getEntity())) {
+                if (event.getCause() == EntityDamageEvent.DamageCause.FIRE || event.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
+                    event.getEntity().setFireTicks(0); //don't let the bot burn
+                }
+                event.setCancelled(true); //prevent bot from getting any damage
+            }
         }
     }
 
