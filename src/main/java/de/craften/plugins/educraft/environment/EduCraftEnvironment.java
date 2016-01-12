@@ -55,29 +55,21 @@ public class EduCraftEnvironment {
         validators = new ArrayList<>();
         for (Map validation : config.getMapList("validate")) {
             if (validation.containsKey("assert")) {
-                String locationComponents[] = null;
-                Vector location = null;
-                if (validation.get("at") != null) {
-                    validation.get("at").toString().split(",");
-                    location = new Vector(Integer.parseInt(locationComponents[0].trim()),
-                            Integer.parseInt(locationComponents[1].trim()),
-                            Integer.parseInt(locationComponents[2].trim()));
-                }
-
                 switch (validation.get("assert").toString().toLowerCase()) {
                     case "block":
-                        validators.add(new BlockValidator(Material.matchMaterial(validation.get("is").toString()), location));
+                        validators.add(new BlockValidator(Material.matchMaterial(validation.get("is").toString()),
+                                parseVector(String.valueOf(validation.get("at")))));
                         break;
                     case "bot":
-                        validators.add(new BotLocationValidator(location));
+                        validators.add(new BotLocationValidator(parseVector(String.valueOf(validation.get("at")))));
                         break;
                     case "shearedsheep":
                     case "sheared_sheep":
-                        validators.add(new ShearedSheepValidator(location));
+                        validators.add(new ShearedSheepValidator(parseVector(String.valueOf(validation.get("at")))));
                         break;
                     case "deadentity":
                     case "dead_entity":
-                        validators.add(new DeadEntityValidator(location));
+                        validators.add(new DeadEntityValidator(parseVector(String.valueOf(validation.get("at")))));
                         break;
                     case "inventory":
                         int amount = validation.get("amount") != null ? Integer.valueOf(validation.get("amount").toString()) : 1;
@@ -133,6 +125,13 @@ public class EduCraftEnvironment {
         if (entity == null) {
             throw new IllegalArgumentException("No start location configured.");
         }
+    }
+
+    private static Vector parseVector(String value) {
+        String locationComponents[] = locationComponents = value.split(",");
+        return new Vector(Integer.parseInt(locationComponents[0].trim()),
+                Integer.parseInt(locationComponents[1].trim()),
+                Integer.parseInt(locationComponents[2].trim()));
     }
 
     /**
