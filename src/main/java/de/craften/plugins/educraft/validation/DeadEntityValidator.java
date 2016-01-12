@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft.validation;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.inventory.BotInventory;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -20,7 +21,7 @@ public class DeadEntityValidator implements ProgramValidator {
     }
 
     @Override
-    public boolean validate(EduCraftEnvironment environment) {
+    public boolean validate(EduCraftEnvironment environment, BotInventory inventory) {
         Entity entity = environment.getEntityAtRelative(location);
         return entity != null && entity.isDead();
     }

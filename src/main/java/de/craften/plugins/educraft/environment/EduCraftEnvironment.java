@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft.environment;
 
 import de.craften.plugins.educraft.EduCraft;
+import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.educraft.validation.*;
 import de.craften.plugins.managedentities.EntityManager;
@@ -54,10 +55,14 @@ public class EduCraftEnvironment {
         validators = new ArrayList<>();
         for (Map validation : config.getMapList("validate")) {
             if (validation.containsKey("assert")) {
-                String locationComponents[] = validation.get("at").toString().split(",");
-                Vector location = new Vector(Integer.parseInt(locationComponents[0].trim()),
-                        Integer.parseInt(locationComponents[1].trim()),
-                        Integer.parseInt(locationComponents[2].trim()));
+                String locationComponents[] = null;
+                Vector location = null;
+                if (validation.get("at") != null) {
+                    validation.get("at").toString().split(",");
+                    location = new Vector(Integer.parseInt(locationComponents[0].trim()),
+                            Integer.parseInt(locationComponents[1].trim()),
+                            Integer.parseInt(locationComponents[2].trim()));
+                }
 
                 switch (validation.get("assert").toString().toLowerCase()) {
                     case "block":
@@ -73,6 +78,10 @@ public class EduCraftEnvironment {
                     case "deadentity":
                     case "dead_entity":
                         validators.add(new DeadEntityValidator(location));
+                        break;
+                    case "inventory":
+                        int amount = validation.get("amount") != null ? Integer.valueOf(validation.get("amount").toString()) : 1;
+                        validators.add(new InventoryValidator(Material.matchMaterial(validation.get("contains").toString()), amount));
                         break;
                 }
             }
@@ -171,11 +180,12 @@ public class EduCraftEnvironment {
     /**
      * Checks if this environment fulfills all requirements of this environment and thus the program was successful.
      *
+     * @param inventory the bot's inventory, used to check for items
      * @return true if the program was successfull, false if not
      */
-    public boolean fulfillsRequirements() {
+    public boolean fulfillsRequirements(BotInventory inventory) {
         for (ProgramValidator validator : validators) {
-            if (!validator.validate(this)) {
+            if (!validator.validate(this, inventory)) {
                 return false;
             }
         }

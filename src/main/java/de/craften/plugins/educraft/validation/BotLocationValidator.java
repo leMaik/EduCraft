@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft.validation;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.inventory.BotInventory;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -20,7 +21,7 @@ public class BotLocationValidator implements ProgramValidator {
     }
 
     @Override
-    public boolean validate(EduCraftEnvironment environment) {
+    public boolean validate(EduCraftEnvironment environment, BotInventory inventory) {
         Location absoluteLocation = environment.getLocation().add(location);
         return environment.getEntity().getEntity().getLocation().getBlock().getLocation().equals(absoluteLocation);
     }

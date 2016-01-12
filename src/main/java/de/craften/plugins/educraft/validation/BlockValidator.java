@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft.validation;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.inventory.BotInventory;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
 
@@ -23,7 +24,7 @@ public class BlockValidator implements ProgramValidator {
     }
 
     @Override
-    public boolean validate(EduCraftEnvironment environment) {
+    public boolean validate(EduCraftEnvironment environment, BotInventory inventory) {
         return environment.getLocation().add(location).getBlock().getType() == material;
     }
 }

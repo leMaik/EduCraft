@@ -1,6 +1,7 @@
 package de.craften.plugins.educraft;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
@@ -28,6 +29,7 @@ public class ScriptExecutor {
     private final String code;
     private final EduCraftEnvironment environment;
     private final long functionDelay;
+    private final BotInventory inventory;
     private UUID playerId;
     private Thread thread;
     private Runnable callback;
@@ -45,7 +47,9 @@ public class ScriptExecutor {
         this.functionDelay = Math.min(functionDelay, MAX_FUNCTION_DELAY);
 
         engine = new ScriptEngine();
-        engine.mergeGlobal(new EduCraftApi(environment, this.functionDelay));
+        EduCraftApi api = new EduCraftApi(environment, this.functionDelay);
+        inventory = api.getInventory();
+        engine.mergeGlobal(api);
         engine.setGlobal("log", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue message) {
@@ -112,7 +116,7 @@ public class ScriptExecutor {
                 Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(EduCraft.getPlugin(EduCraft.class), new Runnable() {
                     @Override
                     public void run() {
-                        if (environment.fulfillsRequirements()) {
+                        if (environment.fulfillsRequirements(inventory)) {
                             Location entityLocation = environment.getEntity().getEntity().getLocation();
                             Firework firework = entityLocation.getWorld().spawn(entityLocation, Firework.class);
                             FireworkMeta fwMeta = firework.getFireworkMeta();
