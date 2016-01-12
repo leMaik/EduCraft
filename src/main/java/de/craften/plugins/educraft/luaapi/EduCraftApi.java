@@ -1,6 +1,9 @@
 package de.craften.plugins.educraft.luaapi;
 
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
+import de.craften.plugins.educraft.inventory.BotInventory;
+import de.craften.plugins.educraft.inventory.CreativeInventory;
+import de.craften.plugins.educraft.inventory.SurvivalInventory;
 import de.craften.plugins.educraft.luaapi.functions.*;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.ManagedEntity;
@@ -20,6 +23,7 @@ public class EduCraftApi extends LuaTable {
     private final EduCraftEnvironment environment;
     private final long functionDelay;
     private final StationaryBehavior stationary;
+    private final BotInventory inventory;
     private Vector direction = new Vector(0, 0, -1);
 
     public EduCraftApi(EduCraftEnvironment environment, long functionDelay) {
@@ -41,10 +45,15 @@ public class EduCraftApi extends LuaTable {
         set("shear", new ShearFunction().withApi(this));
         set("attack", new AttackFunction().withApi(this));
         set("wait", new WaitFunction().withApi(this));
-
         set("bot", new BotTable(this));
 
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
+
+        if (environment.isSurvivalMode()) {
+            inventory = new SurvivalInventory();
+        } else {
+            inventory = new CreativeInventory();
+        }
     }
 
     public EduCraftEnvironment getEnvironment() {
@@ -124,5 +133,14 @@ public class EduCraftApi extends LuaTable {
      */
     public long getFunctionDelay() {
         return functionDelay;
+    }
+
+    /**
+     * Gets the bot's inventory.
+     *
+     * @return the bot's inventory
+     */
+    public BotInventory getInventory() {
+        return inventory;
     }
 }

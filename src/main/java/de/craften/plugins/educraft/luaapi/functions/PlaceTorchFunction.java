@@ -14,20 +14,24 @@ import org.luaj.vm2.Varargs;
 public class PlaceTorchFunction extends EduCraftApiFunction {
     @Override
     protected void beforeExecute(Varargs varargs) {
-        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
-        armorStand.setItemInHand(new ItemStack(Material.TORCH));
+        if (getApi().getInventory().hasItem(Material.TORCH, 1)) {
+            LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+            armorStand.setItemInHand(new ItemStack(Material.TORCH));
+        }
     }
 
     @Override
     public Varargs execute(Varargs varargs) {
-        Block currentBlock = getApi().getLocation().getBlock();
+        if (getApi().getInventory().hasItem(Material.TORCH, 1)) {
+            Block currentBlock = getApi().getLocation().getBlock();
+            if (currentBlock.getType() == Material.AIR) {
+                getApi().getInventory().takeItems(Material.TORCH, 1);
+                currentBlock.setType(Material.TORCH);
+            }
 
-        if (currentBlock.getType() == Material.AIR) {
-            currentBlock.setType(Material.TORCH);
+            LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+            armorStand.setItemInHand(null);
         }
-
-        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
-        armorStand.setItemInHand(null);
 
         return LuaValue.NIL;
     }

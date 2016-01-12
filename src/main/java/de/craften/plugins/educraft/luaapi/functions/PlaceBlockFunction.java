@@ -17,8 +17,11 @@ import org.luaj.vm2.Varargs;
 public class PlaceBlockFunction extends EduCraftApiFunction {
     @Override
     protected void beforeExecute(Varargs varargs) {
-        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
-        armorStand.setItemInHand(new ItemStack(getMaterial(varargs.checkjstring(1))));
+        Material type = PlaceBlockFunction.getMaterial(varargs.checkjstring(1));
+        if (getApi().getInventory().hasItem(type, 1)) {
+            LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+            armorStand.setItemInHand(new ItemStack(type));
+        }
     }
 
     @Override
@@ -32,25 +35,30 @@ public class PlaceBlockFunction extends EduCraftApiFunction {
             throw new LuaError("up/down offset must be between -1 and 2");
         }
 
-        Block block = getApi().getLocation().clone()
-                .add(getApi().getDirection().clone().normalize().multiply(forwardBackward))
-                .add(0, upDown, 0)
-                .getBlock();
+        Material type = getMaterial(varargs.checkjstring(1));
+        if (getApi().getInventory().hasItem(type, 1)) {
+            Block block = getApi().getLocation().clone()
+                    .add(getApi().getDirection().clone().normalize().multiply(forwardBackward))
+                    .add(0, upDown, 0)
+                    .getBlock();
 
-        if (forwardBackward == 0 && upDown == 0) {
-            if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
-                Material material = getMaterial(varargs.checkjstring(1));
-                block.setType(material);
-                if (material.isSolid()) {
-                    getApi().moveTo(block.getLocation().add(0, 1, 0), false);
+            if (forwardBackward == 0 && upDown == 0) {
+                if (getApi().getEnvironment().contains(block.getRelative(BlockFace.UP).getLocation())) {
+                    Material material = getMaterial(varargs.checkjstring(1));
+                    block.setType(material);
+                    if (material.isSolid()) {
+                        getApi().moveTo(block.getLocation().add(0, 1, 0), false);
+                    }
+                    getApi().getInventory().takeItems(type, 1);
                 }
+            } else if (getApi().getEnvironment().contains(block.getLocation()) && !block.getType().isSolid()) {
+                block.setType(type);
+                getApi().getInventory().takeItems(type, 1);
             }
-        } else if (getApi().getEnvironment().contains(block.getLocation()) && !block.getType().isSolid()) {
-            block.setType(getMaterial(varargs.checkjstring(1)));
-        }
 
-        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
-        armorStand.setItemInHand(null);
+            LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+            armorStand.setItemInHand(null);
+        }
 
         return LuaValue.NIL;
     }

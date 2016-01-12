@@ -37,6 +37,7 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
                 .getBlock();
 
         if (getApi().getEnvironment().contains(block.getLocation())) {
+            giveDrops(block);
             block.setType(Material.AIR);
 
             if (forwardBackward == 0 && upDown == -1) {
@@ -51,6 +52,10 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
         }
 
         return LuaValue.NIL;
+    }
+
+    private void giveDrops(Block block) {
+        getApi().getInventory().giveItem(block.getType(), 1);
     }
 
     @Override

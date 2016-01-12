@@ -21,15 +21,18 @@ public class PlantCropFunction extends EduCraftApiFunction {
 
     @Override
     public Varargs execute(Varargs varargs) {
-        Block currentBlock = getApi().getLocation().getBlock();
-        Block blockBelow = currentBlock.getRelative(BlockFace.DOWN);
+        if (getApi().getInventory().hasItem(Material.CROPS, 1)) {
+            Block currentBlock = getApi().getLocation().getBlock();
+            Block blockBelow = currentBlock.getRelative(BlockFace.DOWN);
 
-        if (currentBlock.getType() == Material.AIR && blockBelow.getType() == Material.SOIL) {
-            currentBlock.setType(Material.CROPS);
+            if (currentBlock.getType() == Material.AIR && blockBelow.getType() == Material.SOIL) {
+                getApi().getInventory().takeItems(Material.CROPS, 1);
+                currentBlock.setType(Material.CROPS);
+            }
+
+            LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
+            armorStand.setItemInHand(null);
         }
-
-        LivingArmorStandBehavior armorStand = (LivingArmorStandBehavior) getApi().getEntity().getBehaviors(LivingArmorStandBehavior.class).iterator().next();
-        armorStand.setItemInHand(null);
 
         return LuaValue.NIL;
     }

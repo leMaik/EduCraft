@@ -22,8 +22,9 @@ public class ShearFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         for (Entity entity : getApi().getEntitiesAhead()) {
-            if (entity instanceof Sheep) {
+            if (entity instanceof Sheep && !((Sheep) entity).isSheared()) {
                 ((Sheep) entity).setSheared(true);
+                getApi().getInventory().giveItem(Material.WOOL, 2);
                 break;
             }
         }
