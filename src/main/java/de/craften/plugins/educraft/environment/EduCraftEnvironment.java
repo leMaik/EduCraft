@@ -32,6 +32,7 @@ public class EduCraftEnvironment {
     private final Schematic schematic;
     private final Location location;
     private final Collection<ProgramValidator> validators;
+    private final boolean survivalMode;
 
     private ManagedEntity entity;
     private Collection<ManagedEntity> entities = new ArrayList<>();
@@ -76,6 +77,8 @@ public class EduCraftEnvironment {
                 }
             }
         }
+
+        survivalMode = config.getBoolean("survival", false);
 
         initialize();
     }
@@ -282,5 +285,14 @@ public class EduCraftEnvironment {
      */
     public void unlock() {
         lockedBy = null;
+    }
+
+    /**
+     * Checks if this environment is in survival mode.
+     *
+     * @return true if this environment is in survival mode, false if not
+     */
+    public boolean isSurvivalMode() {
+        return survivalMode;
     }
 }
