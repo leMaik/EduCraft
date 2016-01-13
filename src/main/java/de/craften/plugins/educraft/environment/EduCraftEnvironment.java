@@ -40,7 +40,6 @@ public class EduCraftEnvironment {
     private BlockFace startDirection;
     private UUID lockedBy;
 
-
     public EduCraftEnvironment(ConfigurationSection config) throws IOException {
         schematic = new Schematic(Paths.get(
                 EduCraft.getPlugin(EduCraft.class).getDataFolder().getPath(), "levels",
@@ -128,7 +127,7 @@ public class EduCraftEnvironment {
     }
 
     private static Vector parseVector(String value) {
-        String locationComponents[] = locationComponents = value.split(",");
+        String locationComponents[] = value.split(",");
         return new Vector(Integer.parseInt(locationComponents[0].trim()),
                 Integer.parseInt(locationComponents[1].trim()),
                 Integer.parseInt(locationComponents[2].trim()));
@@ -303,5 +302,32 @@ public class EduCraftEnvironment {
      */
     public boolean isSurvivalMode() {
         return survivalMode;
+    }
+
+    /**
+     * Gets the width of this environment (x-direction).
+     *
+     * @return width of this environment
+     */
+    public int getWidth() {
+        return schematic.getWidth();
+    }
+
+    /**
+     * Gets the height of this environment (y-direction).
+     *
+     * @return height of this environment
+     */
+    public int getHeight() {
+        return schematic.getHeight();
+    }
+
+    /**
+     * Gets the length of this environment (z-direction).
+     *
+     * @return length of this environment
+     */
+    public int getLength() {
+        return schematic.getLength();
     }
 }

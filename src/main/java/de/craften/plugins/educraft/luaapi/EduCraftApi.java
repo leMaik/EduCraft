@@ -46,6 +46,7 @@ public class EduCraftApi extends LuaTable {
         set("attack", new AttackFunction().withApi(this));
         set("wait", new WaitFunction().withApi(this));
         set("bot", new BotTable(this));
+        set("environment", new EnvironmentTable(this));
 
         stationary.setLocation(stationary.getLocation().clone().setDirection(direction));
 
