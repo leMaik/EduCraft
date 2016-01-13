@@ -5,6 +5,7 @@ import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.inventory.CreativeInventory;
 import de.craften.plugins.educraft.inventory.SurvivalInventory;
 import de.craften.plugins.educraft.luaapi.functions.*;
+import de.craften.plugins.educraft.util.MessageSender;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.ManagedEntity;
 import de.craften.plugins.managedentities.behavior.StationaryBehavior;
@@ -22,16 +23,26 @@ import java.util.Collection;
 public class EduCraftApi extends LuaTable {
     private final EduCraftEnvironment environment;
     private final long functionDelay;
+    private final MessageSender messageSender;
     private final StationaryBehavior stationary;
     private final BotInventory inventory;
     private Vector direction = new Vector(0, 0, -1);
 
-    public EduCraftApi(EduCraftEnvironment environment, long functionDelay) {
+    /**
+     * Creates a new EduCraft API table.
+     *
+     * @param environment   environment the program that uses this table runs in
+     * @param functionDelay delay between functions
+     * @param messageSender sender that sends messages to the player that started the program
+     */
+    public EduCraftApi(EduCraftEnvironment environment, long functionDelay, MessageSender messageSender) {
         this.environment = environment;
         this.functionDelay = functionDelay;
+        this.messageSender = messageSender;
         stationary = (StationaryBehavior) environment.getEntity().getBehaviors(ResetableStationaryBehavior.class).iterator().next();
         setDirection(new Vector(environment.getStartDirection().getModX(), 0, environment.getStartDirection().getModZ()));
 
+        //Bot control functions
         set("moveForward", new MoveForwardFunction().withApi(this));
         set("turnLeft", new TurnLeftFunction().withApi(this));
         set("turnRight", new TurnRightFunction().withApi(this));
@@ -44,7 +55,13 @@ public class EduCraftApi extends LuaTable {
         set("destroyBlock", new DestroyBlockFunction().withApi(this));
         set("shear", new ShearFunction().withApi(this));
         set("attack", new AttackFunction().withApi(this));
+
+        //Other functions
         set("wait", new WaitFunction().withApi(this));
+        set("assert", new AssertFunction().withApi(this));
+        set("log", new LogFunction().withApi(this));
+
+        //Global tables
         set("bot", new BotTable(this));
         set("environment", new EnvironmentTable(this));
 
@@ -143,5 +160,14 @@ public class EduCraftApi extends LuaTable {
      */
     public BotInventory getInventory() {
         return inventory;
+    }
+
+    /**
+     * Sends a message to the player that started the program.
+     *
+     * @param message message to send
+     */
+    public void sendMessage(String message) {
+        messageSender.sendMessage(message);
     }
 }

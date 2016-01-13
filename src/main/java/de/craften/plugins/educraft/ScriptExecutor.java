@@ -3,6 +3,7 @@ package de.craften.plugins.educraft;
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
+import de.craften.plugins.educraft.util.MessageSender;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
@@ -13,7 +14,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
-import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 
 import java.util.HashMap;
@@ -50,16 +50,14 @@ public class ScriptExecutor {
         this.functionDelay = Math.min(functionDelay, MAX_FUNCTION_DELAY);
 
         engine = new ScriptEngine();
-        EduCraftApi api = new EduCraftApi(environment, this.functionDelay);
-        inventory = api.getInventory();
-        engine.mergeGlobal(api);
-        engine.setGlobal("log", new OneArgFunction() {
+        EduCraftApi api = new EduCraftApi(environment, this.functionDelay, new MessageSender() {
             @Override
-            public LuaValue call(LuaValue message) {
-                sendMessage("[LOG] " + message.tojstring());
-                return LuaValue.NIL;
+            public void sendMessage(String message) {
+                sendMessage(message);
             }
         });
+        inventory = api.getInventory();
+        engine.mergeGlobal(api);
         engine.setGlobal("require", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
@@ -82,21 +80,6 @@ public class ScriptExecutor {
                 return LuaValue.NIL;
             }
         });
-        engine.setGlobal("assert", new VarArgFunction() {
-            @Override
-            public Varargs invoke(Varargs args) {
-                if (!args.checkboolean(1)) {
-                    if (args.isnil(2)) {
-                        sendMessage("Assertion failed.");
-                        throw new LuaError("Assertion failed.");
-                    } else {
-                        sendMessage("Assertion failed: " + args.tojstring(2));
-                        throw new LuaError("Assertion failed: " + args.tojstring(2));
-                    }
-                }
-                return LuaValue.NIL;
-            }
-        });
         this.code = code;
         playerId = player.getUniqueId();
     }
@@ -112,18 +95,6 @@ public class ScriptExecutor {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(functionDelay);
-                } catch (InterruptedException e) {
-                    EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
-                    sendMessage("The program could not be executed.");
-
-                    if (callback != null) {
-                        callback.run();
-                    }
-                    return;
-                }
-
                 try {
                     engine.compile(code).invoke();
                 } catch (LuaError e) {
@@ -158,12 +129,12 @@ public class ScriptExecutor {
                         } else {
                             sendMessage("Oh no, that didn't work yet. Try again!");
                         }
+
+                        if (callback != null) {
+                            callback.run();
+                        }
                     }
                 });
-
-                if (callback != null) {
-                    callback.run();
-                }
             }
         });
         thread.setDaemon(true);
