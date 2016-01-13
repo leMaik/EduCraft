@@ -18,18 +18,22 @@ shear() -- shear the sheep
 ## Usage
 
 ### Run programs
-Programs for the bot need to be written in books. While holding a book with code, use the command `/ec run <environment> [delay]` to run that code. `<environment>` needs to be replaced with the name of an environment.  
+Programs for the bot need to be written in books. While holding a book with code, use the command `/ec run <environment> [delay]` to run that code.
+`<environment>` needs to be replaced with the name of an environment.
 
-The `[delay]` parameter is optional and can be used to specify the time to wait after executing a function (in milliseconds). Lower values will make the program run faster. Default is 1000 ms.
+The `[delay]` parameter is optional and can be used to specify the time to wait after executing a function (in milliseconds).
+Lower values will make the program run faster. Default is 1000 ms.
 
 Only one player can run a program in an environment at a time.
 
 ### Stop programs
-To stop all your running programs, use `/ec stop`.
+To stop all your running programs, use `/ec stop`. To stop a program in a specific environment, use `/ec stopo <environment>`. You can
+only stop your own programs unless you have the `educraft.stop.any` permission.
 
 ### Reset an environment
 Environments are automatically reset when running a program.  
-To reset an environment manually, use `/ec reset <environment>`. Note that an environment can only be reset if no program is running in it.
+To reset an environment manually, use `/ec reset <environment>`. Note that an environment can only be reset if no program is running
+in it or if the program that runs in it was started by you, unless you have the `educraft.stop.any` permission.
 
 ## Programming the bot
 EduCraft provides a set of functions to control the bot.
@@ -40,11 +44,12 @@ See [the API documentation][the-api] for details.
 Grab the plugin .jar from our [CI server][ci] or compile it yourself and put it into the plugin directory. Start your server and you're done.
 
 ### Permissions
-| Permission       | Default value | Description |
-| ---------------- | ------------- | ----------- |
-| `educraft.run`   | `true`        | Allows players to run programs using `/ec run`. |
-| `educraft.stop`  | `true`        | Allows players to stop their own programs. |
-| `educraft.reset` | `true`        | Allows players to reset unused environments. |
+| Permission          | Default value | Description                                                         |
+| ------------------- | ------------- | ------------------------------------------------------------------- |
+| `educraft.run`      | `true`        | Allows players to run programs using `/ec run`.                     |
+| `educraft.stop`     | `true`        | Allows players to stop their own programs.                          |
+| `educraft.stop.any` | `op`          | Allows players to stop programs that were started by other players. |
+| `educraft.reset`    | `true`        | Allows players to reset unused environments.                        |
 
 ### Setup environments
 *Coming soon...*
