@@ -53,7 +53,7 @@ public class ScriptExecutor {
         EduCraftApi api = new EduCraftApi(environment, this.functionDelay, new MessageSender() {
             @Override
             public void sendMessage(String message) {
-                sendMessage(message);
+                ScriptExecutor.this.sendMessage(message);
             }
         });
         inventory = api.getInventory();
