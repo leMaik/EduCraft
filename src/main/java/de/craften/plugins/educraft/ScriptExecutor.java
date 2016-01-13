@@ -72,6 +72,21 @@ public class ScriptExecutor {
                 return LuaValue.NIL;
             }
         });
+        engine.setGlobal("assert", new VarArgFunction() {
+            @Override
+            public Varargs invoke(Varargs args) {
+                if (!args.checkboolean(1)) {
+                    if (args.isnil(2)) {
+                        sendMessage("Assertion failed.");
+                        throw new LuaError("Assertion failed.");
+                    } else {
+                        sendMessage("Assertion failed: " + args.tojstring(2));
+                        throw new LuaError("Assertion failed: " + args.tojstring(2));
+                    }
+                }
+                return LuaValue.NIL;
+            }
+        });
         this.code = code;
         playerId = player.getUniqueId();
     }
