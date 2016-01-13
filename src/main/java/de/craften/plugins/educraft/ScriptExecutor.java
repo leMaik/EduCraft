@@ -16,6 +16,8 @@ import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -27,6 +29,7 @@ public class ScriptExecutor {
     public static final long MAX_FUNCTION_DELAY = 3000;
     private final ScriptEngine engine;
     private final String code;
+    private final Map<String, Varargs> modules = new HashMap<>();
     private final EduCraftEnvironment environment;
     private final long functionDelay;
     private final BotInventory inventory;
@@ -60,12 +63,19 @@ public class ScriptExecutor {
         engine.setGlobal("require", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
+                Varargs module = modules.get(args.checkjstring(1).toLowerCase());
+                if (module != null) {
+                    return module;
+                }
+
                 for (ItemStack item : player.getInventory()) {
                     if (item != null && (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK)) {
                         BookMeta book = (BookMeta) item.getItemMeta();
                         if (book.getTitle() != null && book.getTitle().equalsIgnoreCase(args.checkjstring(1))) {
                             String code = ChatColor.stripColor(StringUtils.join(book.getPages(), "\n"));
-                            return engine.compile(code).invoke();
+                            module = engine.compile(code).invoke();
+                            modules.put(args.checkjstring(1).toLowerCase(), module);
+                            return module;
                         }
                     }
                 }
