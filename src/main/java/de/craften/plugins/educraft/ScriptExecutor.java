@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -29,9 +30,7 @@ public class ScriptExecutor {
     public static final long MAX_FUNCTION_DELAY = 3000;
     private final ScriptEngine engine;
     private final String code;
-    private final Map<String, Varargs> modules = new HashMap<>();
     private final EduCraftEnvironment environment;
-    private final long functionDelay;
     private final BotInventory inventory;
     private UUID playerId;
     private Thread thread;
@@ -47,10 +46,11 @@ public class ScriptExecutor {
      */
     public ScriptExecutor(String code, EduCraftEnvironment environment, final Player player, long functionDelay) {
         this.environment = environment;
-        this.functionDelay = Math.min(functionDelay, MAX_FUNCTION_DELAY);
+        this.code = code;
+        playerId = player.getUniqueId();
 
         engine = new ScriptEngine();
-        EduCraftApi api = new EduCraftApi(environment, this.functionDelay, new MessageSender() {
+        EduCraftApi api = new EduCraftApi(environment, Math.min(functionDelay, MAX_FUNCTION_DELAY), new MessageSender() {
             @Override
             public void sendMessage(String message) {
                 ScriptExecutor.this.sendMessage(message);
@@ -58,30 +58,7 @@ public class ScriptExecutor {
         });
         inventory = api.getInventory();
         engine.mergeGlobal(api);
-        engine.setGlobal("require", new VarArgFunction() {
-            @Override
-            public Varargs invoke(Varargs args) {
-                Varargs module = modules.get(args.checkjstring(1).toLowerCase());
-                if (module != null) {
-                    return module;
-                }
-
-                for (ItemStack item : player.getInventory()) {
-                    if (item != null && (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK)) {
-                        BookMeta book = (BookMeta) item.getItemMeta();
-                        if (book.getTitle() != null && book.getTitle().equalsIgnoreCase(args.checkjstring(1))) {
-                            String code = ChatColor.stripColor(StringUtils.join(book.getPages(), "\n"));
-                            module = engine.compile(code).invoke();
-                            modules.put(args.checkjstring(1).toLowerCase(), module);
-                            return module;
-                        }
-                    }
-                }
-                return LuaValue.NIL;
-            }
-        });
-        this.code = code;
-        playerId = player.getUniqueId();
+        engine.setGlobal("require", new RequireFunction(player));
     }
 
     /**
@@ -178,5 +155,49 @@ public class ScriptExecutor {
      */
     public EduCraftEnvironment getEnvironment() {
         return environment;
+    }
+
+    private class RequireFunction extends VarArgFunction {
+        private final Map<String, Varargs> modules = new HashMap<>();
+        private final Player player;
+
+        public RequireFunction(Player player) {
+            this.player = player;
+        }
+
+        @Override
+        public Varargs invoke(Varargs args) {
+            Varargs module = modules.get(args.checkjstring(1).toLowerCase());
+            if (module != null) {
+                return module;
+            }
+
+            module = tryFindModule(args.checkjstring(1), player.getInventory());
+            if (module != null) {
+                return module;
+            }
+
+            module = tryFindModule(args.checkjstring(1), player.getEnderChest());
+            if (module != null) {
+                return module;
+            }
+
+            return LuaValue.NIL;
+        }
+
+        private Varargs tryFindModule(String name, Inventory inventory) {
+            for (ItemStack item : inventory) {
+                if (item != null && (item.getType() == Material.BOOK_AND_QUILL || item.getType() == Material.WRITTEN_BOOK)) {
+                    BookMeta book = (BookMeta) item.getItemMeta();
+                    if (book.getTitle() != null && book.getTitle().equalsIgnoreCase(name)) {
+                        String code = ChatColor.stripColor(StringUtils.join(book.getPages(), "\n"));
+                        Varargs module = engine.compile(code).invoke();
+                        modules.put(name.toLowerCase(), module);
+                        return module;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
