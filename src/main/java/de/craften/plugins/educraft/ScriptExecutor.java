@@ -4,6 +4,7 @@ import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import de.craften.plugins.educraft.util.MessageSender;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
@@ -12,11 +13,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.util.StringUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,6 +34,7 @@ import java.util.logging.Level;
 public class ScriptExecutor {
     public static final long DEFAULT_FUNCTION_DELAY = 1000;
     public static final long MAX_FUNCTION_DELAY = 3000;
+    private String moduleRepositoryUrl;
     private final ScriptEngine engine;
     private final String code;
     private final EduCraftEnvironment environment;
@@ -59,6 +66,24 @@ public class ScriptExecutor {
         inventory = api.getInventory();
         engine.mergeGlobal(api);
         engine.setGlobal("require", new RequireFunction(player));
+    }
+
+    /**
+     * Gets the URL of the module repository.
+     *
+     * @return URL of the module repository or null if no repository is configured
+     */
+    public String getModuleRepositoryUrl() {
+        return moduleRepositoryUrl;
+    }
+
+    /**
+     * Sets the URL of the module repository.
+     *
+     * @param moduleRepositoryUrl URL of the module repository or null to disable remote modules
+     */
+    public void setModuleRepositoryUrl(String moduleRepositoryUrl) {
+        this.moduleRepositoryUrl = moduleRepositoryUrl;
     }
 
     /**
@@ -167,22 +192,34 @@ public class ScriptExecutor {
 
         @Override
         public Varargs invoke(Varargs args) {
-            Varargs module = modules.get(args.checkjstring(1).toLowerCase());
+            String moduleName = args.checkjstring(1);
+            Varargs module = modules.get(moduleName.toLowerCase());
             if (module != null) {
                 return module;
             }
 
-            module = tryFindModule(args.checkjstring(1), player.getInventory());
+            module = tryFindModule(moduleName, player.getInventory());
             if (module != null) {
                 return module;
             }
 
-            module = tryFindModule(args.checkjstring(1), player.getEnderChest());
+            module = tryFindModule(moduleName, player.getEnderChest());
             if (module != null) {
                 return module;
+            }
+
+            if (isRemoteModule(moduleName)) {
+                module = tryFindRemoteModule(moduleName);
+                if (module != null) {
+                    return module;
+                }
             }
 
             return LuaValue.NIL;
+        }
+
+        private boolean isRemoteModule(String moduleName) {
+            return moduleName.matches("@([a-zA-Z0-9\\-_]+)/([a-zA-Z0-9\\-_]+)");
         }
 
         private Varargs tryFindModule(String name, Inventory inventory) {
@@ -198,6 +235,30 @@ public class ScriptExecutor {
                 }
             }
             return null;
+        }
+
+        private Varargs tryFindRemoteModule(String name) {
+            if (moduleRepositoryUrl == null) {
+                return null;
+            }
+            
+            try {
+                URL url = new URL(moduleRepositoryUrl + "/" + name.substring(1));
+                URLConnection connection = url.openConnection();
+                if (connection.getHeaderFieldInt("Status", 400) == 200) {
+                    try (InputStream inputStream = connection.getInputStream()) {
+                        return engine.compile(inputStream, name);
+                    } catch (IOException e) {
+                        throw new LuaError(e);
+                    }
+                } else if (connection.getHeaderFieldInt("Status", 400) == 404) {
+                    return null;
+                } else {
+                    throw new LuaError("Could not get module " + name);
+                }
+            } catch (IOException e) {
+                throw new LuaError(e);
+            }
         }
     }
 }

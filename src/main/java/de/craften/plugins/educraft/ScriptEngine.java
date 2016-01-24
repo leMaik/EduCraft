@@ -6,6 +6,9 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 /**
  * The script engine for LuaCraft.
  */
@@ -26,6 +29,17 @@ public class ScriptEngine {
      */
     public LuaValue compile(String code) {
         return globals.load(code);
+    }
+
+    /**
+     * Compiles the code from the given input stream with the given chunk name.
+     *
+     * @param inputStream input stream of the code
+     * @param chunkName   name of the created chunk (used in error messages)
+     * @return compiled code
+     */
+    public LuaValue compile(InputStream inputStream, String chunkName) {
+        return globals.load(new InputStreamReader(inputStream), chunkName);
     }
 
     /**
