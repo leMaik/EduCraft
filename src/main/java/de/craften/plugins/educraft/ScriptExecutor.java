@@ -4,7 +4,6 @@ import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import de.craften.plugins.educraft.util.MessageSender;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Firework;
@@ -13,7 +12,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.util.StringUtil;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
@@ -21,6 +19,7 @@ import org.luaj.vm2.lib.VarArgFunction;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -241,20 +240,24 @@ public class ScriptExecutor {
             if (moduleRepositoryUrl == null) {
                 return null;
             }
-            
+
             try {
                 URL url = new URL(moduleRepositoryUrl + "/" + name.substring(1));
                 URLConnection connection = url.openConnection();
-                if (connection.getHeaderFieldInt("Status", 400) == 200) {
-                    try (InputStream inputStream = connection.getInputStream()) {
-                        return engine.compile(inputStream, name);
-                    } catch (IOException e) {
-                        throw new LuaError(e);
-                    }
-                } else if (connection.getHeaderFieldInt("Status", 400) == 404) {
-                    return null;
-                } else {
-                    throw new LuaError("Could not get module " + name);
+                int responseCode = ((HttpURLConnection) connection).getResponseCode();
+                switch (responseCode) {
+                    case 200:
+                        try (InputStream inputStream = connection.getInputStream()) {
+                            Varargs module = engine.compile(inputStream, name).invoke();
+                            modules.put(name.toLowerCase(), module);
+                            return module;
+                        } catch (IOException e) {
+                            throw new LuaError(e);
+                        }
+                    case 404:
+                        return null;
+                    default:
+                        throw new LuaError("Could not get module " + name + " (Error " + responseCode + ")");
                 }
             } catch (IOException e) {
                 throw new LuaError(e);

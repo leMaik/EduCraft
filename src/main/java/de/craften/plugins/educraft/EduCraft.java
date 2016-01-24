@@ -174,6 +174,9 @@ public class EduCraft extends JavaPlugin {
         final UUID playerId = player.getUniqueId();
         environment.lock(player);
         final ScriptExecutor executor = new ScriptExecutor(code, environment, player, delay);
+        if (getConfig().contains("moduleRepository")) {
+            executor.setModuleRepositoryUrl(getConfig().getString("moduleRepository"));
+        }
         executor.setCallback(new Runnable() {
             @Override
             public void run() {
