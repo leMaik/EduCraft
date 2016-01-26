@@ -3,6 +3,7 @@ package de.craften.plugins.educraft;
 import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
+import de.craften.plugins.educraft.luaapi.math.MathLib;
 import de.craften.plugins.educraft.util.MessageSender;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
@@ -65,6 +66,7 @@ public class ScriptExecutor {
         inventory = api.getInventory();
         engine.mergeGlobal(api);
         engine.setGlobal("require", new RequireFunction(player));
+        engine.setGlobal("math", new MathLib());
     }
 
     /**
