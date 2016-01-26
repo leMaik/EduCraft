@@ -1,6 +1,9 @@
 package de.craften.plugins.educraft.luaapi.math;
 
-import org.luaj.vm2.*;
+import org.luaj.vm2.LuaDouble;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.VarArgFunction;
@@ -244,27 +247,23 @@ public class MathLib extends LuaTable {
         public abstract double call(double x, double y);
     }
 
-    private static class RandomFunction extends LuaFunction {
+    private static class RandomFunction extends VarArgFunction {
         Random random = new Random();
 
         @Override
-        public LuaValue call() {
-            return valueOf(random.nextDouble());
-        }
-
-        @Override
-        public LuaValue call(LuaValue a) {
-            int m = a.checkint();
-            if (m < 1) argerror(1, "interval is empty");
-            return valueOf(1 + random.nextInt(m));
-        }
-
-        @Override
-        public LuaValue call(LuaValue a, LuaValue b) {
-            int m = a.checkint();
-            int n = b.checkint();
-            if (n < m) argerror(2, "interval is empty");
-            return valueOf(m + random.nextInt(n + 1 - m));
+        public Varargs invoke(Varargs args) {
+            if (args.narg() == 0) {
+                return valueOf(random.nextDouble());
+            } else if (args.narg() == 1) {
+                int m = args.checkint(1);
+                if (m < 1) argerror(1, "interval is empty");
+                return valueOf(1 + random.nextInt(m));
+            } else {
+                int m = args.checkint(1);
+                int n = args.checkint(2);
+                if (n < m) argerror(2, "interval is empty");
+                return valueOf(m + random.nextInt(n + 1 - m));
+            }
         }
     }
 }
