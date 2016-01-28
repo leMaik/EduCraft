@@ -6,8 +6,10 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.compiler.LuaC;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * The script engine for LuaCraft.
@@ -23,12 +25,13 @@ public class ScriptEngine {
     /**
      * Compiles the given code.
      *
-     * @param code code to compile
+     * @param code      code to compile
+     * @param chunkName name of the created chunk (used in error messages)
      * @return compiled code
      * @throws LuaError if compilation fails
      */
-    public LuaValue compile(String code) {
-        return globals.load(code);
+    public LuaValue compile(String code, String chunkName) {
+        return compile(new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)), chunkName);
     }
 
     /**

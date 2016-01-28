@@ -42,7 +42,7 @@ public class IfBlockAheadFunction extends EduCraftApiFunction {
         }
 
         if (isAhead) {
-            varargs.checkfunction(2).invoke();
+            getApi().safeInvoke(varargs.checkfunction(2), LuaValue.NONE);
         }
         return LuaValue.NIL;
     }

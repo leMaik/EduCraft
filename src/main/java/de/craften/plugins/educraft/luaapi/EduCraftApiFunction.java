@@ -3,6 +3,7 @@ package de.craften.plugins.educraft.luaapi;
 import de.craften.plugins.educraft.EduCraft;
 import org.bukkit.Bukkit;
 import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.Varargs;
 import org.luaj.vm2.lib.VarArgFunction;
 

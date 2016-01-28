@@ -167,7 +167,7 @@ public class EduCraft extends JavaPlugin {
         executor.stop();
         executor.getEnvironment().unlock();
         runningPrograms.remove(executor.getPlayerId(), executor);
-        executor.sendMessage("Stopped.");
+        executor.sendMessages("Stopped.");
     }
 
     private void runCode(Player player, String code, final EduCraftEnvironment environment, long delay) {

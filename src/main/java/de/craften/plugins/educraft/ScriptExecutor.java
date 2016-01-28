@@ -4,6 +4,7 @@ import de.craften.plugins.educraft.environment.EduCraftEnvironment;
 import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.luaapi.EduCraftApi;
 import de.craften.plugins.educraft.luaapi.math.MathLib;
+import de.craften.plugins.educraft.util.LuaInvoker;
 import de.craften.plugins.educraft.util.MessageSender;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
@@ -26,7 +27,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An executor for EduCraft Lua scripts.
@@ -39,6 +40,7 @@ public class ScriptExecutor {
     private final String code;
     private final EduCraftEnvironment environment;
     private final BotInventory inventory;
+    private final AtomicBoolean errorOccurred = new AtomicBoolean(false);
     private UUID playerId;
     private Thread thread;
     private Runnable callback;
@@ -60,7 +62,12 @@ public class ScriptExecutor {
         EduCraftApi api = new EduCraftApi(environment, Math.min(functionDelay, MAX_FUNCTION_DELAY), new MessageSender() {
             @Override
             public void sendMessage(String message) {
-                ScriptExecutor.this.sendMessage(message);
+                ScriptExecutor.this.sendMessages(message);
+            }
+        }, new LuaInvoker() {
+            @Override
+            public Varargs safeInvoke(LuaValue function, Varargs args) {
+                return ScriptExecutor.this.safeInvoke(function, args);
             }
         });
         inventory = api.getInventory();
@@ -98,14 +105,20 @@ public class ScriptExecutor {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
+                LuaValue chunk;
                 try {
-                    engine.compile(code).invoke();
+                    chunk = engine.compile(code, "<main>");
                 } catch (LuaError e) {
-                    if (!(e.getCause() instanceof InterruptedException)) {
-                        EduCraft.getPlugin(EduCraft.class).getLogger().log(Level.WARNING, "Could not execute script", e);
-                        sendMessage("The program could not be executed.");
+                    sendMessages("The program could not be compiled.", e.getMessage());
+                    if (callback != null) {
+                        callback.run();
                     }
+                    return;
+                }
 
+                try {
+                    ScriptExecutor.this.safeInvoke(chunk, LuaValue.NONE);
+                } catch (LuaError e) {
                     if (callback != null) {
                         callback.run();
                     }
@@ -128,9 +141,9 @@ public class ScriptExecutor {
                                     .build());
                             fwMeta.setPower(2);
                             firework.setFireworkMeta(fwMeta);
-                            sendMessage("Great! You did it.");
+                            sendMessages("Great! You did it.");
                         } else {
-                            sendMessage("Oh no, that didn't work yet. Try again!");
+                            sendMessages("Oh no, that didn't work yet. Try again!");
                         }
 
                         if (callback != null) {
@@ -158,10 +171,12 @@ public class ScriptExecutor {
         this.callback = callback;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessages(String... messages) {
         Player player = Bukkit.getPlayer(playerId);
         if (player != null) {
-            player.sendMessage("[EduCraft] " + message);
+            for (String message : messages) {
+                player.sendMessage("[EduCraft] " + message);
+            }
         }
     }
 
@@ -181,6 +196,23 @@ public class ScriptExecutor {
      */
     public EduCraftEnvironment getEnvironment() {
         return environment;
+    }
+
+    private Varargs safeInvoke(LuaValue function, Varargs args) {
+        try {
+            return function.invoke(args);
+        } catch (final LuaError e) {
+            //only send one error message for program (the "stack trace" for java callbacks is useless anyway)
+            if (!errorOccurred.getAndSet(true)) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(EduCraft.getPlugin(EduCraft.class), new Runnable() {
+                    @Override
+                    public void run() {
+                        sendMessages("An error occurred while running your program.", e.getMessage());
+                    }
+                });
+            }
+            throw e;
+        }
     }
 
     private class RequireFunction extends VarArgFunction {
@@ -229,7 +261,7 @@ public class ScriptExecutor {
                     BookMeta book = (BookMeta) item.getItemMeta();
                     if (book.getTitle() != null && book.getTitle().equalsIgnoreCase(name)) {
                         String code = ChatColor.stripColor(StringUtils.join(book.getPages(), "\n"));
-                        Varargs module = engine.compile(code).invoke();
+                        Varargs module = engine.compile(code, name).invoke();
                         modules.put(name.toLowerCase(), module);
                         return module;
                     }

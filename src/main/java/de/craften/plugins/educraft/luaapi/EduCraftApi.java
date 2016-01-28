@@ -5,6 +5,7 @@ import de.craften.plugins.educraft.inventory.BotInventory;
 import de.craften.plugins.educraft.inventory.CreativeInventory;
 import de.craften.plugins.educraft.inventory.SurvivalInventory;
 import de.craften.plugins.educraft.luaapi.functions.*;
+import de.craften.plugins.educraft.util.LuaInvoker;
 import de.craften.plugins.educraft.util.MessageSender;
 import de.craften.plugins.educraft.util.ResetableStationaryBehavior;
 import de.craften.plugins.managedentities.ManagedEntity;
@@ -14,6 +15,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
 
 import java.util.Collection;
 
@@ -24,6 +27,7 @@ public class EduCraftApi extends LuaTable {
     private final EduCraftEnvironment environment;
     private final long functionDelay;
     private final MessageSender messageSender;
+    private final LuaInvoker luaInvoker;
     private final StationaryBehavior stationary;
     private final BotInventory inventory;
     private Vector direction = new Vector(0, 0, -1);
@@ -34,11 +38,13 @@ public class EduCraftApi extends LuaTable {
      * @param environment   environment the program that uses this table runs in
      * @param functionDelay delay between functions
      * @param messageSender sender that sends messages to the player that started the program
+     * @param luaInvoker    invoker for callbacks
      */
-    public EduCraftApi(EduCraftEnvironment environment, long functionDelay, MessageSender messageSender) {
+    public EduCraftApi(EduCraftEnvironment environment, long functionDelay, MessageSender messageSender, LuaInvoker luaInvoker) {
         this.environment = environment;
         this.functionDelay = functionDelay;
         this.messageSender = messageSender;
+        this.luaInvoker = luaInvoker;
         stationary = (StationaryBehavior) environment.getEntity().getBehaviors(ResetableStationaryBehavior.class).iterator().next();
         setDirection(new Vector(environment.getStartDirection().getModX(), 0, environment.getStartDirection().getModZ()));
 
@@ -169,5 +175,18 @@ public class EduCraftApi extends LuaTable {
      */
     public void sendMessage(String message) {
         messageSender.sendMessage(message);
+    }
+
+    /**
+     * Invokes the given function with the given arguments. Any exceptions that occurred while running the code are
+     * rethrown.
+     *
+     * @param function function
+     * @param args     arguments
+     * @return result of the function
+     * @throws org.luaj.vm2.LuaError if any error occurs
+     */
+    public Varargs safeInvoke(LuaValue function, Varargs args) {
+        return luaInvoker.safeInvoke(function, args);
     }
 }
