@@ -103,13 +103,13 @@ public class EduCraftEnvironment {
                                 startDirection = ((org.bukkit.material.Sign) sign.getData()).getFacing();
                                 Location startLocation = block.getLocation().add(0.5, 0, 0.5)
                                         .setDirection(new Vector(startDirection.getModX(), 0, startDirection.getModZ()));
-                                entity = entityManager.spawn(startLocation, ArmorStand.class);
+                                entity = entityManager.create(startLocation, ArmorStand.class);
                                 entity.addBehavior(new ResetableStationaryBehavior(startLocation, false));
                                 entity.addBehavior(new LivingArmorStandBehavior());
                                 entity.spawn();
                                 block.setType(Material.AIR);
                             } else if (sign.getLine(1).equalsIgnoreCase("sheep")) {
-                                ManagedEntity<Sheep> sheep = entityManager.spawn(block.getLocation().add(0.5, 0, 0.5), Sheep.class);
+                                ManagedEntity<Sheep> sheep = entityManager.create(block.getLocation().add(0.5, 0, 0.5), Sheep.class);
                                 sheep.addBehavior(new ResetableStationaryBehavior(block.getLocation().add(0.5, 0, 0.5), false));
                                 this.entities.add(sheep);
                                 sheep.spawn();
