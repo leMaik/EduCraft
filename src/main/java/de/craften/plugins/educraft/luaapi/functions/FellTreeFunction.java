@@ -25,9 +25,11 @@ public class FellTreeFunction extends EduCraftApiFunction {
     @Override
     public Varargs execute(Varargs varargs) {
         Block block = getApi().getBlockAhead();
-        MaterialData data = block.getState().getData();
-        if (data instanceof Tree) {
-            getApi().getInventory().giveItem(block.getType(), fellTree(block, ((Tree) data).getSpecies()));
+        if (block.getType() == Material.LOG || block.getType() == Material.LOG_2) {
+            MaterialData data = block.getState().getData();
+            if (data instanceof Tree) {
+                getApi().getInventory().giveItem(block.getType(), fellTree(block, ((Tree) data).getSpecies()));
+            }
         }
         return NIL;
     }
@@ -39,7 +41,10 @@ public class FellTreeFunction extends EduCraftApiFunction {
     }
 
     private int fellTree(Block block, TreeSpecies species) {
-        int count = 1;
+        int count = 0;
+        if (block.getType() == Material.LOG || block.getType() == Material.LOG_2) {
+            count++;
+        }
         block.breakNaturally();
 
         for (BlockFace face : BlockFace.values()) {
