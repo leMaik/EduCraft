@@ -45,13 +45,13 @@ public class FellTreeFunction extends EduCraftApiFunction {
         if (block.getType() == Material.LOG || block.getType() == Material.LOG_2) {
             count++;
         }
-        block.breakNaturally();
+        block.setType(Material.AIR);
 
         for (BlockFace face : BlockFace.values()) {
             if (face != BlockFace.DOWN) {
                 Block neighbor = block.getRelative(face);
-                BlockState state = neighbor.getState();
-                if (state instanceof Tree && ((Tree) state).getSpecies().equals(species)) {
+                MaterialData data = neighbor.getState().getData();
+                if (data instanceof Tree && ((Tree) data).getSpecies().equals(species)) {
                     count += fellTree(neighbor, species);
                 }
             }
