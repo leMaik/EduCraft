@@ -2,6 +2,7 @@ package de.craften.plugins.educraft.luaapi.functions;
 
 import de.craften.plugins.educraft.environment.LivingArmorStandBehavior;
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
+import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -38,6 +39,7 @@ public class DestroyBlockFunction extends EduCraftApiFunction {
 
         if (getApi().getEnvironment().contains(block.getLocation())) {
             giveDrops(block);
+            block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, block.getType());
             block.setType(Material.AIR);
 
             if (forwardBackward == 0 && upDown == -1) {

@@ -2,6 +2,7 @@ package de.craften.plugins.educraft.luaapi.functions;
 
 import de.craften.plugins.educraft.environment.LivingArmorStandBehavior;
 import de.craften.plugins.educraft.luaapi.EduCraftApiFunction;
+import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.TreeSpecies;
 import org.bukkit.block.Block;
@@ -45,6 +46,7 @@ public class FellTreeFunction extends EduCraftApiFunction {
         if (block.getType() == Material.LOG || block.getType() == Material.LOG_2) {
             count++;
         }
+        block.getWorld().playEffect(block.getLocation(), Effect.STEP_SOUND, block.getType());
         block.setType(Material.AIR);
 
         for (BlockFace face : BlockFace.values()) {
